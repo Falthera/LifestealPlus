@@ -1,0 +1,16 @@
+prefix: "<dark_purple>[Lifesteal+]</dark_purple> "
+anti-op-abuse:
+  announcement: "<red>[AntiOpAbuse]</red> <gold><sender></gold> executed: <white><command></white>"
+no-permission: "<red>You do not have permission to do that."
+player-not-found: "<red>Player not found."
+invalid-amount: "<red>Invalid amount."
+reloaded: "<green>Configuration reloaded successfully!"
+hearts-set: "<green>Set <player>'s hearts to <amount>."
+gave-heart: "<green>Gave 1 heart to <player>."
+gave-revival: "<green>Gave Revival Totem to <player>."
+archetype-set: "<green>Set <player>'s archetype to <archetype>."
+archetype-not-found: "<red>Archetype not found."
+leaderboard:
+  no-permission: "<red>You do not have permission to view the leaderboard.</red>"
+  sent: "<green>Leaderboard sent to Discord!</green>"
+  disabled: "<red>Discord leaderboard is not enabled in config.</red>"

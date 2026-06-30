@@ -1,0 +1,150 @@
+settings:
+  default-hearts: 10
+  max-hearts: 20
+  heart-steal-amount: 1
+  heart-crystal-amount: 1
+  heart-crystal-cooldown-seconds: 0
+  ban-reason: "&cYou ran out of hearts!"
+  broadcast-death:
+    enabled: true
+    message: "<red><player> has run out of hearts!"
+  revival-delay-ticks: 40
+  revival-hearts-restored: 3
+  revival-broadcast:
+    enabled: true
+    message: "<green><player> has been revived by <reviver>!"
+  hot-reload: false
+
+database:
+  type: sqlite
+  async: true
+  sqlite:
+    file: lifesteal.db
+  mysql:
+    host: localhost
+    port: 3306
+    database: lifesteal
+    username: root
+    password: ""
+    pool-size: 10
+
+integrations:
+  placeholderapi: true
+  vault: false
+
+disabled-worlds: []
+disabled-dimensions: []
+
+archetypes:
+  miner:
+    name: Miner
+    description:
+      - "Automatically smelts ores"
+      - "Fortune works normally"
+      - "Silk Touch disables auto-smelt"
+    icon: IRON_PICKAXE
+  aquatic:
+    name: Aquatic
+    description:
+      - "Dolphin's Grace in water"
+      - "No underwater slowdown"
+      - "Respiration III & Aqua Affinity"
+    icon: TRIDENT
+  pyromancer:
+    name: Pyromancer
+    description:
+      - "Fire Resistance always active"
+      - "Immune to lava"
+      - "Can swim in lava"
+    icon: BLAZE_ROD
+  windwalker:
+    name: Windwalker
+    description:
+      - "Speed I always active"
+      - "80% reduced fall damage"
+      - "Speed II on landing"
+    icon: FEATHER
+  assassin:
+    name: Assassin
+    description:
+      - "+2 True Damage first hit"
+      - "Speed I always active"
+      - "Sharpness III"
+    icon: NETHERITE_SWORD
+  guardian:
+    name: Guardian
+    description:
+      - "Constant Absorption I"
+      - "Reduced knockback"
+      - "Protection I"
+    icon: SHIELD
+  vampire:
+    name: Vampire
+    description:
+      - "Heal 12-15% of damage"
+      - "Speed I always active"
+      - "Looting I"
+    icon: REDSTONE
+  trader:
+    name: Trader
+    description:
+      - "Villager discounts"
+      - "Mending I"
+      - "Bonus trade chance"
+    icon: EMERALD
+
+anti-op-abuse:
+  enabled: true
+  announce-to: all
+  exclude-commands:
+    - "w"
+    - "tell"
+    - "msg"
+    - "dm"
+    - "whisper"
+    - "reply"
+    - "r"
+  tracked-commands:
+    - "gamemode"
+    - "tp"
+    - "teleport"
+    - "give"
+    - "effect"
+    - "enchant"
+    - "kill"
+    - "op"
+    - "deop"
+    - "ban"
+    - "banip"
+    - "unban"
+    - "pardon"
+    - "kick"
+    - "mute"
+    - "god"
+    - "heal"
+    - "feed"
+    - "fly"
+    - "speed"
+    - "xp"
+    - "summon"
+    - "setblock"
+    - "fill"
+    - "clone"
+    - "time"
+    - "weather"
+    - "difficulty"
+    - "defaultgamemode"
+    - "whitelist"
+    - "stop"
+    - "reload"
+    - "restart"
+    - "shutdown"
+    - "save"
+    - "save-all"
+
+discord-leaderboard:
+  enabled: false
+  webhook-url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
+  interval-ticks: 6000
+  top: 10
+  title: "Lifesteal+ Top Killers"

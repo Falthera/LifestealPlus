@@ -1,0 +1,40 @@
+name: Lifesteal+
+main: dev.lifesteal.Lifesteal
+version: 2.0.0
+api-version: '1.21'
+author: Lifesteal+ Authors
+description: A production-ready Lifesteal plugin for PaperMC
+softdepend: [PlaceholderAPI, Vault]
+commands:
+  lifesteal:
+    description: Main Lifesteal+ command
+    usage: /<command>
+    aliases: [ls, hearts, lifesteal]
+permissions:
+  lifesteal.admin:
+    description: Full admin access
+    default: op
+  lifesteal.reload:
+    description: Reload configuration
+    default: op
+  lifesteal.hearts:
+    description: Manage hearts
+    default: op
+  lifesteal.revive:
+    description: Revive players
+    default: op
+  lifesteal.archetype:
+    description: Manage archetypes
+    default: op
+  lifesteal.gui:
+    description: Open GUI
+    default: true
+  lifesteal.give:
+    description: Give items
+    default: op
+  lifesteal.bypass:
+    description: Bypass archetype restrictions
+    default: op
+  lifesteal.leaderboard:
+    description: Send Discord leaderboard
+    default: op
