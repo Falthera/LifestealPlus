@@ -35,14 +35,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Read current version from gradle.properties
           CURRENT_VERSION=$(grep '^version = ' gradle.properties | sed 's/version = //' | tr -d ' ')
           echo "Current version: $CURRENT_VERSION"
           
-          # Parse version parts
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
           
-          # Determine bump type
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             BUMP_TYPE="${{ github.event.inputs.bump }}"
           else
@@ -71,15 +68,12 @@ jobs:
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
           
-          # Update gradle.properties
           sed -i "s/^version = .*/version = $NEW_VERSION/" gradle.properties
           
-          # Commit version bump (skip CI to prevent loop)
           git add gradle.properties
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git push origin HEAD:main
           
-          # Create and push annotated tag
           git tag -a "$NEW_TAG" -m "Release $NEW_VERSION"
           git push origin "$NEW_TAG"
 
@@ -93,11 +87,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
       - name: Build shadow JAR
-        run: ./gradlew shadowJar --no-daemon
+        run: gradle shadowJar
 
       - name: Verify build output
         run: ls -lh build/libs/
