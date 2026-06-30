@@ -1,6 +1,5 @@
 plugins {
     java
-    id("io.paperweight.loaddev") version "1.6.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -12,7 +11,6 @@ repositories {
 }
 
 dependencies {
-    paperDevBundle("io.papermc.paper:paper-dev-bundle:1.21.11-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.milkbowl.vault:Vault:1.7.3")
