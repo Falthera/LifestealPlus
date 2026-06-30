@@ -9,6 +9,7 @@ import dev.lifesteal.hearts.HeartManagerImpl;
 import dev.lifesteal.items.ItemManagerImpl;
 import dev.lifesteal.listeners.AntiOpAbuseListener;
 import dev.lifesteal.managers.ArchetypeManagerImpl;
+import dev.lifesteal.managers.LeaderboardManager;
 import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,10 +25,10 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
     private RecipeManagerImpl recipeManager;
     private GUIManagerImpl guiManager;
     private RevivalManagerImpl revivalManager;
-    private dev.lifesteal.managers.LeaderboardManager leaderboardManager;
+    private LeaderboardManager leaderboardManager;
     private boolean placeholderAPIEnabled = false;
     private boolean vaultEnabled = false;
-    private net.milkbowl.vault.economy.Economy vaultEconomy;
+    private Object vaultEconomy;
     
     @Override
     public void onEnable() {
@@ -45,14 +46,19 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
         this.revivalManager = new RevivalManagerImpl(this, databaseManager, config, heartManager, archetypeManager);
         heartManager.loadAllOnline();
         archetypeManager.loadAllOnline();
-        this.leaderboardManager = new dev.lifesteal.managers.LeaderboardManager(this, databaseManager, config, archetypeManager);
+        this.leaderboardManager = new LeaderboardManager(this, databaseManager, config, archetypeManager);
         if (config.isPlaceholderAPIEnabled() && getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholderAPIEnabled = true;
-            new dev.lifesteal.integration.PlaceholderAPIHook(this).register();
+            new dev.lifesteal.integration.PlaceholderAPIHook(this);
         }
         if (config.isVaultEnabled() && getServer().getPluginManager().isPluginEnabled("Vault")) {
-            var registration = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-            if (registration != null) { vaultEconomy = registration.getProvider(); vaultEnabled = true; }
+            try {
+                var registration = getServer().getServicesManager().getRegistration(Class.forName("net.milkbowl.vault.economy.Economy"));
+                if (registration != null) {
+                    vaultEconomy = registration.getProvider();
+                    vaultEnabled = true;
+                }
+            } catch (Exception ignored) {}
         }
         registerListeners();
         registerCommands();
@@ -67,7 +73,7 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
         pm.registerEvents(new dev.lifesteal.listeners.InventoryListener(this, heartManager, itemManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.BanListener(this, heartManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.AntiOpAbuseListener(this, config), this);
-        pm.registerEvents(guiManager, this); // GUI clicks
+        pm.registerEvents(guiManager, this);
     }
     
     private void registerCommands() {
@@ -83,7 +89,6 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
     public void onDisable() {
         if (databaseManager != null) databaseManager.shutdown();
         if (recipeManager != null) recipeManager.unregisterAll();
-        if (placeholderAPIEnabled) me.clip.placeholderapi.expansion.PlaceholderExpansion.unregisterAll(this);
     }
     
     @Override
@@ -96,9 +101,9 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
     @NotNull @Override public GUIManager getGUIManager() { return guiManager; }
     @NotNull @Override public RevivalManager getRevivalManager() { return revivalManager; }
     @NotNull @Override public LifestealConfig getConfig() { return config; }
-    public dev.lifesteal.managers.LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
+    public LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
     @Override public boolean isPlaceholderAPIHookEnabled() { return placeholderAPIEnabled; }
     @Override public boolean isVaultHookEnabled() { return vaultEnabled; }
-    @Nullable @Override public net.milkbowl.vault.economy.Economy getVaultEconomy() { return vaultEconomy; }
+    @Nullable @Override public Object getVaultEconomy() { return vaultEconomy; }
     public DatabaseManager getDatabaseManager() { return databaseManager; }
 }

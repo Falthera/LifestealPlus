@@ -1,9 +1,11 @@
 package dev.lifesteal.api;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
+import java.util.List;
 
 public interface Lifesteal {
     @NotNull HeartManager getHeartManager();
@@ -15,5 +17,5 @@ public interface Lifesteal {
     @NotNull LifestealConfig getConfig();
     boolean isPlaceholderAPIHookEnabled();
     boolean isVaultHookEnabled();
-    @Nullable net.milkbowl.vault.economy.Economy getVaultEconomy();
+    @Nullable Object getVaultEconomy();
 }
