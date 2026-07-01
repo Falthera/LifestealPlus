@@ -8,8 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -26,9 +24,7 @@ public class TraderArchetype implements Listener {
         if (!(event.getRightClicked() instanceof Villager villager)) return;
         Player player = event.getPlayer();
         if (!isTrader(player)) return;
-        if (player.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE) == null) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
-        }
+        // Hero of the Village effect is applied permanently by ArchetypeManagerImpl.applyArchetypeEffects
         for (MerchantRecipe recipe : villager.getRecipes()) {
             if (random.nextDouble() < 0.05) {
                 ItemStack result = recipe.getResult();

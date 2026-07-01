@@ -47,6 +47,7 @@ public class MinerArchetype implements org.bukkit.event.Listener {
             event.setDropItems(false);
             block.getWorld().dropItemNaturally(block.getLocation(), smelted);
         }
+        // Haste effect is applied permanently by ArchetypeManagerImpl.applyArchetypeEffects
     }
     
     private boolean isArchetypeActive(Player player) {

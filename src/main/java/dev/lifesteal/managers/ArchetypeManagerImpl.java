@@ -152,6 +152,13 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
         if (a == null) return;
         
         switch (a.getId()) {
+            case "miner" -> {
+                var haste = player.getPotionEffect(org.bukkit.potion.PotionEffectType.HASTE);
+                if (haste == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false));
+                }
+            }
             case "windwalker" -> {
                 var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
                 if (speed == null || speed.getDuration() < 40) {
@@ -167,10 +174,10 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 }
             }
             case "aquatic" -> {
-                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.DOLPHINS_GRACE);
+                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.CONDUIT_POWER);
                 if (water == null) {
                     player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, true, false));
+                        org.bukkit.potion.PotionEffectType.CONDUIT_POWER, Integer.MAX_VALUE, 0, true, false));
                 }
             }
             case "pyromancer" -> {
@@ -178,6 +185,27 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 if (fire == null) {
                     player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                         org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, true, true));
+                }
+            }
+            case "assassin" -> {
+                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
+                if (speed == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
+                }
+            }
+            case "vampire" -> {
+                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
+                if (speed == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
+                }
+            }
+            case "trader" -> {
+                var hero = player.getPotionEffect(org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE);
+                if (hero == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
                 }
             }
         }
