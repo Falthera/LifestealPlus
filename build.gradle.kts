@@ -1,6 +1,6 @@
 plugins {
     java
-    id("com.github.johnrengelman.shadow") version "8.2.0"
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 repositories {
@@ -29,12 +29,9 @@ tasks.named("jar") {
     archiveClassifier.set("")
 }
 
-shadowJar {
+tasks.shadowJar {
     archiveFileName.set("Lifesteal+.jar")
     relocate("com.zaxxer.hikari", "dev.lifesteal.libs.hikari")
-    dependencies {
-        include(dependency("com.zaxxer:HikariCP:5.1.0"))
-    }
 }
 
 tasks.build {
