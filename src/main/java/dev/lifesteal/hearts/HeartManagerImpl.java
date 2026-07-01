@@ -126,11 +126,11 @@ public class HeartManagerImpl implements HeartManager {
         int hearts = heartCache.getOrDefault(player.getUniqueId(), defaultHearts.get());
         updateMaxHealth(player, hearts);
         double health = hearts * 2.0;
-        player.setHealth(Math.min(health, player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue()));
+        player.setHealth(Math.min(health, player.getMaxHealth()));
     }
     
     private void updateMaxHealth(@NotNull Player player, int hearts) {
-        player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).setBaseValue(hearts * 2.0);
+        player.setMaxHealth(hearts * 2.0);
     }
     
     @Override public boolean hasReachedZeroHearts(@NotNull UUID playerId) { return isDead(playerId); }
@@ -160,7 +160,7 @@ public class HeartManagerImpl implements HeartManager {
                 Player player = plugin.getServer().getPlayer(playerId);
                 if (player != null && player.isOnline()) {
                     updateMaxHealth(player, hearts);
-                    double health = Math.min(hearts * 2.0, player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue());
+                    double health = Math.min(hearts * 2.0, player.getMaxHealth());
                     player.setHealth(health);
                 }
             }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
