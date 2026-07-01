@@ -22,10 +22,12 @@ import java.util.stream.Collectors;
 public class LifestealCommand implements CommandExecutor, TabCompleter {
     private final Lifesteal plugin;
     private final LifestealConfig config;
+    private final dev.lifesteal.api.ArchetypeManager archetypeManager;
     
     public LifestealCommand(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
         this.config = plugin.getLifestealConfig();
+        this.archetypeManager = plugin.getArchetypeManager();
     }
     
     @Override
@@ -42,7 +44,13 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             case "giveheart" -> cmdGiveHeart(sender, Arrays.copyOfRange(args, 1, args.length));
             case "giverevival" -> cmdGiveRevival(sender, Arrays.copyOfRange(args, 1, args.length));
             case "revive" -> cmdRevive(sender, Arrays.copyOfRange(args, 1, args.length));
-            case "archetype" -> cmdArchetype(sender, Arrays.copyOfRange(args, 1, args.length));
+            case "archetype" -> {
+                if (args.length == 1 && sender instanceof Player) {
+                    cmdArchetypeInfo(sender);
+                } else {
+                    cmdArchetype(sender, Arrays.copyOfRange(args, 1, args.length));
+                }
+            }
             case "gui" -> cmdGUI(sender);
             case "withdraw" -> cmdWithdraw(sender, Arrays.copyOfRange(args, 1, args.length));
             case "leaderboard" -> cmdLeaderboard(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -143,6 +151,13 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player player)) { sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED)); return; }
         if (!player.hasPermission("lifesteal.gui")) { player.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
         plugin.getGUIManager().openArchetypeSelectionGUI(player);
+    }
+    
+    private void cmdArchetypeInfo(@NotNull CommandSender sender) {
+        if (!(sender instanceof Player player)) { sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED)); return; }
+        var archetype = archetypeManager.getArchetype(player);
+        if (archetype == null) { sender.sendMessage(Component.text("No archetype selected").color(NamedTextColor.RED)); return; }
+        sender.sendMessage(Component.text("Your archetype: " + archetype.getName()).color(NamedTextColor.GREEN));
     }
     
     private void cmdWithdraw(@NotNull CommandSender sender, String[] args) {

@@ -10,6 +10,14 @@ commands:
     description: Main LifestealPlus command
     usage: /<command>
     aliases: [ls, hearts, lifesteal]
+  withdraw:
+    description: Withdraw hearts to heart crystals
+    usage: /withdraw <amount>
+    permission: lifesteal.withdraw
+  archetype:
+    description: View your archetype
+    usage: /archetype
+    permission: lifesteal.gui
 permissions:
   lifesteal.admin:
     description: Full admin access
@@ -28,13 +36,13 @@ permissions:
     default: op
   lifesteal.gui:
     description: Open GUI
-    default: true
+    default: op
   lifesteal.give:
     description: Give items
     default: op
   lifesteal.withdraw:
     description: Withdraw hearts
-    default: true
+    default: op
   lifesteal.bypass:
     description: Bypass archetype restrictions
     default: op

@@ -84,6 +84,10 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         if (cmd != null) cmd.setExecutor(new LifestealCommand(this));
         cmd = getCommand("ls");
         if (cmd != null) cmd.setExecutor(new LifestealCommand(this));
+        cmd = getCommand("withdraw");
+        if (cmd != null) cmd.setExecutor(new LifestealCommand(this));
+        cmd = getCommand("archetype");
+        if (cmd != null) cmd.setExecutor(new LifestealCommand(this));
     }
     
     @Override
