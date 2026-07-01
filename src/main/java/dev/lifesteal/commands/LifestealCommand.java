@@ -163,25 +163,25 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private void cmdWithdraw(@NotNull CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED)); return; }
         if (!player.hasPermission("lifesteal.withdraw")) { player.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
-        if (args.length < 1) { player.sendMessage(Component.text("Usage: /lifesteal withdraw <amount>").color(NamedTextColor.RED)); return; }
+        if (args.length < 1) { sender.sendMessage(Component.text("Usage: /withdraw <amount>").color(NamedTextColor.RED)); return; }
         int amount;
         try {
             amount = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            player.sendMessage(Component.text("Invalid amount").color(NamedTextColor.RED));
+            sender.sendMessage(Component.text("Invalid amount").color(NamedTextColor.RED));
             return;
         }
-        if (amount <= 0) { player.sendMessage(Component.text("Amount must be positive").color(NamedTextColor.RED)); return; }
+        if (amount <= 0) { sender.sendMessage(Component.text("Amount must be positive").color(NamedTextColor.RED)); return; }
         int currentHearts = (int) Math.floor(plugin.getHeartManager().getHearts(player));
         int minHearts = plugin.getHeartManager().getDefaultHearts();
-        int heartsToWithdraw = Math.min(amount, currentHearts - minHearts);
+        int heartsToWithdraw = Math.min(amount, Math.max(0, currentHearts - minHearts));
         if (heartsToWithdraw <= 0) {
-            player.sendMessage(Component.text("You don't have extra hearts to withdraw").color(NamedTextColor.RED));
+            sender.sendMessage(Component.text("You have " + currentHearts + " hearts (minimum: " + minHearts + ")").color(NamedTextColor.RED));
             return;
         }
         plugin.getHeartManager().removeHearts(player.getUniqueId(), heartsToWithdraw);
         player.getInventory().addItem(plugin.getItemManager().getHeartCrystal(heartsToWithdraw));
-        player.sendMessage(Component.text("Withdrew " + heartsToWithdraw + " hearts").color(NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("Withdrew " + heartsToWithdraw + " hearts").color(NamedTextColor.GREEN));
     }
     
     private void cmdVersion(@NotNull CommandSender sender) {
