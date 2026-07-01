@@ -9,7 +9,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -107,16 +106,7 @@ public class HeartManagerImpl implements HeartManager {
     private void setHeartsSync(@NotNull UUID playerId, int amount) {
         int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
         heartCache.put(playerId, clamped);
-        try (Connection conn = ((dev.lifesteal.database.DatabaseManager) database).getDataSource().getConnection();
-             var ps = conn.prepareStatement(storageType.equalsIgnoreCase("sqlite")
-                 ? "INSERT OR REPLACE INTO player_hearts (uuid, hearts) VALUES (?, ?)"
-                 : "INSERT INTO player_hearts (uuid, hearts) VALUES (?, ?) ON DUPLICATE KEY UPDATE hearts = VALUES(hearts)")) {
-            ps.setString(1, playerId.toString());
-            ps.setInt(2, clamped);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save hearts for " + playerId + ": " + e.getMessage());
-        }
+        database.saveHearts(playerId, clamped);
     }
     
     private void addHeartsSync(@NotNull UUID playerId, int amount) {

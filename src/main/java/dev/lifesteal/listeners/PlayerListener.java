@@ -54,10 +54,10 @@ public class PlayerListener implements Listener {
         if (!config.isWorldEnabled(victim.getWorld().getName())) return;
         
         Player killer = victim.getKiller();
-        if (killer == null) return;
-        
-        heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
-        heartManager.incrementKills(killer.getUniqueId());
+        if (killer != null) {
+            heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
+            heartManager.incrementKills(killer.getUniqueId());
+        }
     }
     
     @EventHandler
