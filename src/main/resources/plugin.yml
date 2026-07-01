@@ -16,6 +16,10 @@ commands:
   archetype:
     description: Manage your or another player's archetype
     usage: /<command> <player> <archetype>
+  trust:
+    description: Manage trusted players
+    usage: /<command> <player>
+    aliases: [untrust, trusts]
 
 permissions:
   lifesteal.reload:

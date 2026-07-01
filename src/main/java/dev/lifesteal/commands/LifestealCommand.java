@@ -49,6 +49,26 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             cmdWithdraw(sender, args);
             return true;
         }
+        if (command.getName().equalsIgnoreCase("trust")) {
+            if (args.length == 0) {
+                if (sender instanceof Player) {
+                    cmdTrusts(sender);
+                } else {
+                    sender.sendMessage(Component.text("Usage: /trust <player>").color(NamedTextColor.RED));
+                }
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("untrust")) {
+                cmdUntrust(sender, Arrays.copyOfRange(args, 1, args.length));
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("trusts")) {
+                cmdTrusts(sender);
+                return true;
+            }
+            cmdTrust(sender, args);
+            return true;
+        }
         if (args.length == 0) {
             sendHelp(sender);
             return true;
