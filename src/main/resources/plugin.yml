@@ -1,4 +1,7 @@
 name: LifestealPlus
+main: dev.lifesteal.Lifesteal
+version: 2.0.0
+api-version: '1.21.11'
 author: LifestealPlus Authors
 description: A production-ready Lifesteal plugin for PaperMC
 softdepend: [PlaceholderAPI, Vault]
