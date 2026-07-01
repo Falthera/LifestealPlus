@@ -19,6 +19,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +48,7 @@ public class PlayerListener implements Listener {
             playArchetypeSelectionCutscene(player);
             Archetype random = archetypeManager.getRandomArchetype();
             archetypeManager.setArchetype(player, random);
+            archetypeManager.applyArchetypeEffects(player);
             player.sendMessage(Component.text("Your archetype has been chosen: " + random.getName() + "!").color(NamedTextColor.GOLD));
         } else {
             archetypeManager.applyArchetypeEffects(player);
@@ -64,6 +66,11 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         heartManager.onPlayerQuit(event.getPlayer());
+    }
+    
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        archetypeManager.applyArchetypeEffects(event.getPlayer());
     }
     
     @EventHandler
