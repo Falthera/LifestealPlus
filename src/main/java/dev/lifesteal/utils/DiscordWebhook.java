@@ -1,6 +1,7 @@
 package dev.lifesteal.utils;
 
 import dev.lifesteal.Lifesteal;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
@@ -53,12 +54,12 @@ public class DiscordWebhook {
                 .thenAccept(response -> {
                     int code = response.statusCode();
                     if (code >= 400) {
-                        plugin.getLogger().warning("Discord webhook failed with HTTP " + code + ": " + response.body());
+                        ((Plugin) plugin).getLogger().warning("Discord webhook failed with HTTP " + code + ": " + response.body());
                     }
                 })
                 .exceptionally(ex -> {
                     if (ex.getMessage() != null && !ex.getMessage().contains("Connection closed")) {
-                        plugin.getLogger().warning("Failed to send Discord webhook: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
+                        ((Plugin) plugin).getLogger().warning("Failed to send Discord webhook: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
                     }
                     return null;
                 });

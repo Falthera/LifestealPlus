@@ -6,7 +6,7 @@ import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.api.RevivalManager;
 import dev.lifesteal.events.ArchetypeSelectEvent;
 import dev.lifesteal.events.HeartCrystalUseEvent;
-import dev.lifesteal.items.ItemManager;
+import dev.lifesteal.api.ItemManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -69,14 +69,10 @@ public class HeartManagerImpl implements HeartManager {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 Player online = plugin.getServer().getPlayer(playerId);
                 if (online == null || !online.isOnline()) return;
-                var event = new PlayerPermanentDeathEvent(online, 0);
-                plugin.getServer().getPluginManager().callEvent(event);
-                if (!event.isCancelled()) {
-                    plugin.getServer().getBanList(BanList.Type.NAME).addBan(online.getName(), config.getBanReason(), null, null);
-                    online.kick(org.kyori.adventure.text.Component.text(config.getBanReason()));
-                    if (config.isBroadcastEnabled()) {
-                        plugin.getServer().broadcast(org.kyori.adventure.text.Component.text(config.getBroadcastMessage().replace("%player%", online.getName())));
-                    }
+                plugin.getServer().getBanList(org.bukkit.BanList.Type.NAME).addBan(online.getName(), config.getBanReason(), null, null);
+                online.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
+                if (config.isBroadcastEnabled()) {
+                    plugin.getServer().broadcast(net.kyori.adventure.text.Component.text(config.getBroadcastMessage().replace("%player%", online.getName())));
                 }
             });
         }, database.getExecutor());
@@ -140,7 +136,10 @@ public class HeartManagerImpl implements HeartManager {
     @Override
     public CompletableFuture<Void> savePlayerData(@NotNull UUID playerId, boolean async) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> database.saveHearts(playerId, heartCache.getOrDefault(playerId, defaultHearts.get())), database.getExecutor());
-        return async ? future : future.join();
+        if (!async) {
+            try { future.join(); } catch (CompletionException e) { throw new RuntimeException(e); }
+        }
+        return async ? future : CompletableFuture.completedFuture(null);
     }
     
     public void loadAllOnline() { 

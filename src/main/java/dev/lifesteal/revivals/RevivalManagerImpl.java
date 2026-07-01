@@ -6,10 +6,11 @@ import dev.lifesteal.api.RevivalManager;
 import dev.lifesteal.events.PlayerRevivedEvent;
 import dev.lifesteal.events.RevivalTotemUseEvent;
 import org.bukkit.BanList;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.particle.Particle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -25,7 +26,7 @@ public class RevivalManagerImpl implements RevivalManager {
     
     public RevivalManagerImpl(@NotNull Lifesteal plugin, @NotNull dev.lifesteal.database.DatabaseManager database,
                               @NotNull LifestealConfig config,
-                              @NotNull dev.lifesteal.hearts.HeartManager heartManager,
+                              @NotNull dev.lifesteal.api.HeartManager heartManager,
                               @NotNull dev.lifesteal.api.ArchetypeManager archetypeManager) {
         this.plugin = plugin; this.config = config;
     }
@@ -66,18 +67,18 @@ public class RevivalManagerImpl implements RevivalManager {
             
             plugin.getHeartManager().addHearts(target.getUniqueId(), heartsToRestore);
             plugin.getArchetypeManager().loadPlayerData(target.getUniqueId());
-            target.sendMessage(org.kyori.adventure.text.Component.text("You have been revived!").color(org.kyori.adventure.text.format.NamedTextColor.GREEN));
+            target.sendMessage(net.kyori.adventure.text.Component.text("You have been revived!").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
             target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
-            target.getWorld().spawnParticle(Particle.HEART, target.getLocation(), 20, 0.5, 1.0, 0.5, 0.1);
+            target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
             
             if (config.isRevivalBroadcastEnabled()) {
                 var msg = config.getRevivalBroadcastMessage().replace("%player%", target.getName()).replace("%reviver%", reviver.getName());
-                plugin.getServer().broadcast(org.kyori.adventure.text.Component.text(msg).color(org.kyori.adventure.text.format.NamedTextColor.GREEN));
+                plugin.getServer().broadcast(net.kyori.adventure.text.Component.text(msg).color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
             }
             
             ItemStack hand = reviver.getInventory().getItemInMainHand();
             if (hand != null && hand.getAmount() > 1) hand.setAmount(hand.getAmount() - 1);
-            else if (hand != null) reviver.getInventory().setItemInMainHand(org.bukkit.Material.AIR != null ? new ItemStack(org.bukkit.Material.AIR) : null);
+            else if (hand != null) reviver.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             
             var revivedEvent = new PlayerRevivedEvent(target, reviver, heartsToRestore);
             plugin.getServer().getPluginManager().callEvent(revivedEvent);

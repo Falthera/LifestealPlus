@@ -61,6 +61,11 @@ public class GUIManagerImpl implements GUIManager, Listener {
         player.openInventory(inv);
     }
     
+    @Override
+    public void openArchetypeManagementGUI(@NotNull Player player) {
+        openArchetypeSelectionGUI(player);
+    }
+    
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -93,7 +98,7 @@ public class GUIManagerImpl implements GUIManager, Listener {
         ItemMeta meta = heart.getItemMeta();
         if (meta != null) {
             meta.displayName(Component.text(target.getName() + "'s Hearts").color(NamedTextColor.RED));
-            int hearts = plugin.getHeartManager().getHearts(target);
+            double hearts = plugin.getHeartManager().getHearts(target);
             meta.lore(List.of(Component.text("Hearts: " + hearts).color(NamedTextColor.WHITE),
                               Component.text("Max Hearts: " + plugin.getHeartManager().getMaxHearts()).color(NamedTextColor.WHITE)));
             heart.setItemMeta(meta);

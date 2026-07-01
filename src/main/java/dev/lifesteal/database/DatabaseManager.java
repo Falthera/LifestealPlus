@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.LifestealConfig;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sql.DataSource;
@@ -14,6 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -26,7 +29,7 @@ public class DatabaseManager {
     
     public DatabaseManager(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfig();
+        this.config = plugin.getLifestealConfig();
     }
     
     public void initialize() {
@@ -42,7 +45,7 @@ public class DatabaseManager {
     
     private DataSource initializeSQLite(@NotNull ConfigurationSection section) {
         String file = section.getString("sqlite.file", "lifesteal.db");
-        return dev.lifesteal.storage.SQLiteDataSource.create(plugin.getDataFolder().toPath().resolve(file).toString());
+        return dev.lifesteal.storage.SQLiteDataSource.create(((Plugin) plugin).getDataFolder().toPath().resolve(file).toString());
     }
     
     private DataSource initializeMySQL(@NotNull ConfigurationSection section) {
@@ -80,7 +83,7 @@ public class DatabaseManager {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_kills (uuid VARCHAR(36) PRIMARY KEY, kills INT NOT NULL DEFAULT 0);");
             }
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to run migrations: " + e.getMessage());
+            ((Plugin) plugin).getLogger().severe("Failed to run migrations: " + e.getMessage());
         }
     }
     
@@ -90,7 +93,7 @@ public class DatabaseManager {
             ps.setString(1, uuid.toString());
             try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getInt("hearts"); }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load hearts for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to load hearts for " + uuid + ": " + e.getMessage());
         }
         return config.getDefaultHearts();
     }
@@ -104,7 +107,7 @@ public class DatabaseManager {
             ps.setInt(2, hearts);
             ps.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to save hearts for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to save hearts for " + uuid + ": " + e.getMessage());
         }
     }
     
@@ -114,7 +117,7 @@ public class DatabaseManager {
             ps.setString(1, uuid.toString());
             try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getString("archetype"); }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load archetype for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to load archetype for " + uuid + ": " + e.getMessage());
         }
         return null;
     }
@@ -128,7 +131,7 @@ public class DatabaseManager {
             ps.setString(2, archetype);
             ps.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to save archetype for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to save archetype for " + uuid + ": " + e.getMessage());
         }
     }
     
@@ -138,7 +141,7 @@ public class DatabaseManager {
             ps.setString(1, uuid.toString());
             try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getInt("revived") == 1; }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load revive status for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to load revive status for " + uuid + ": " + e.getMessage());
         }
         return false;
     }
@@ -152,7 +155,7 @@ public class DatabaseManager {
             ps.setInt(2, revived ? 1 : 0);
             ps.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to save revive status for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to save revive status for " + uuid + ": " + e.getMessage());
         }
     }
     
@@ -162,7 +165,7 @@ public class DatabaseManager {
             ps.setString(1, uuid.toString());
             try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getInt("kills"); }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load kills for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to load kills for " + uuid + ": " + e.getMessage());
         }
         return 0;
     }
@@ -177,7 +180,7 @@ public class DatabaseManager {
             ps.setInt(3, amount);
             ps.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to increment kills for " + uuid + ": " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to increment kills for " + uuid + ": " + e.getMessage());
         }
     }
     
@@ -192,7 +195,7 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load top killers: " + e.getMessage());
+            ((Plugin) plugin).getLogger().warning("Failed to load top killers: " + e.getMessage());
         }
         return results;
     }

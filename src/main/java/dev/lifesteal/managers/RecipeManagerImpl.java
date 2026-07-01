@@ -14,6 +14,7 @@ public class RecipeManagerImpl implements RecipeManager {
     private final Lifesteal plugin;
     private final LifestealConfig config;
     private final List<Recipe> recipes = new ArrayList<>();
+    private final List<org.bukkit.NamespacedKey> recipeKeys = new ArrayList<>();
     
     public RecipeManagerImpl(@NotNull Lifesteal plugin, @NotNull LifestealConfig config) {
         this.plugin = plugin; this.config = config;
@@ -29,6 +30,7 @@ public class RecipeManagerImpl implements RecipeManager {
         heartCrystal.setIngredient('K', org.bukkit.Material.OMINOUS_TRIAL_KEY);
         plugin.getServer().addRecipe(heartCrystal);
         recipes.add(heartCrystal);
+        recipeKeys.add(heartKey);
         
         NamespacedKey reviveKey = new NamespacedKey(plugin, "revival_totem");
         ShapedRecipe revivalTotem = new ShapedRecipe(reviveKey, plugin.getItemManager().getRevivalTotem());
@@ -38,14 +40,16 @@ public class RecipeManagerImpl implements RecipeManager {
         revivalTotem.setIngredient('S', org.bukkit.Material.NETHER_STAR);
         plugin.getServer().addRecipe(revivalTotem);
         recipes.add(revivalTotem);
+        recipeKeys.add(reviveKey);
     }
     
     @Override
     public void unregisterAll() {
-        for (Recipe r : recipes) {
-            plugin.getServer().removeRecipe(r.getKey());
+        for (int i = 0; i < recipes.size() && i < recipeKeys.size(); i++) {
+            plugin.getServer().removeRecipe(recipeKeys.get(i));
         }
         recipes.clear();
+        recipeKeys.clear();
     }
     
     @Override

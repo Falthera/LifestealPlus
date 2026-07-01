@@ -44,7 +44,7 @@ public class MinerArchetype implements org.bukkit.event.Listener {
             int amount = smelted.getAmount() * (fortune > 0 ? (fortune + 1) : 1);
             smelted.setAmount(amount);
             event.setDropItems(false);
-            block.getWorld().dropItemsNaturally(block.getLocation(), smelted);
+            block.getWorld().dropItemNaturally(block.getLocation(), smelted);
         }
     }
     

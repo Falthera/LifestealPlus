@@ -14,7 +14,7 @@ public interface Lifesteal {
     @NotNull RecipeManager getRecipeManager();
     @NotNull GUIManager getGUIManager();
     @NotNull RevivalManager getRevivalManager();
-    @NotNull LifestealConfig getConfig();
+    @NotNull LifestealConfig getLifestealConfig();
     boolean isPlaceholderAPIHookEnabled();
     boolean isVaultHookEnabled();
     @Nullable Object getVaultEconomy();

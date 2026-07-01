@@ -1,12 +1,10 @@
 package dev.lifesteal.commands;
 
-import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.ArchetypeManager;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.ItemManager;
 import dev.lifesteal.api.Lifesteal;
 import dev.lifesteal.api.LifestealConfig;
-import dev.lifesteal.items.ItemManagerImpl;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -14,6 +12,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +25,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     public LifestealCommand(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfig();
+        this.config = plugin.getLifestealConfig();
     }
     
     @Override
@@ -38,7 +37,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "help" -> sendHelp(sender);
             case "reload" -> cmdReload(sender);
-            case "hearts" -> cmdHearts(sender);
+            case "hearts" -> cmdHearts(sender, new String[0]);
             case "sethearts" -> cmdSetHearts(sender, Arrays.copyOfRange(args, 1, args.length));
             case "giveheart" -> cmdGiveHeart(sender, Arrays.copyOfRange(args, 1, args.length));
             case "giverevival" -> cmdGiveRevival(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -67,7 +66,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED));
             return;
         }
-        plugin.getConfig().reload();
+        plugin.getLifestealConfig().reload();
         plugin.getHeartManager().reloadConfig();
         plugin.getArchetypeManager().reload();
         ((dev.lifesteal.Lifesteal) plugin).getLeaderboardManager().reload();
@@ -76,7 +75,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     private void cmdHearts(@NotNull CommandSender sender, String[] args) {
         if (args.length < 1) { sender.sendMessage(Component.text("Usage: /lifesteal hearts <player>").color(NamedTextColor.RED)); return; }
-        Player target = plugin.getServer().getPlayer(args[0]);
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         sender.sendMessage(Component.text(target.getName() + " has " + plugin.getHeartManager().getHearts(target) + " hearts.").color(NamedTextColor.GREEN));
     }
@@ -84,7 +83,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private void cmdSetHearts(@NotNull CommandSender sender, String[] args) {
         if (!sender.hasPermission("lifesteal.hearts")) { sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
         if (args.length < 2) { sender.sendMessage(Component.text("Usage: /lifesteal sethearts <player> <amount>").color(NamedTextColor.RED)); return; }
-        Player target = plugin.getServer().getPlayer(args[0]);
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         int amount = Integer.parseInt(args[1]);
         plugin.getHeartManager().setHearts(target.getUniqueId(), amount);
@@ -94,7 +93,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private void cmdGiveHeart(@NotNull CommandSender sender, String[] args) {
         if (!sender.hasPermission("lifesteal.give")) { sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
         if (args.length < 1) { sender.sendMessage(Component.text("Usage: /lifesteal giveheart <player>").color(NamedTextColor.RED)); return; }
-        Player target = plugin.getServer().getPlayer(args[0]);
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         plugin.getHeartManager().addHearts(target.getUniqueId(), 1);
         sender.sendMessage(Component.text("Gave 1 heart to " + target.getName()).color(NamedTextColor.GREEN));
@@ -103,7 +102,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private void cmdGiveRevival(@NotNull CommandSender sender, String[] args) {
         if (!sender.hasPermission("lifesteal.give")) { sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
         if (args.length < 1) { sender.sendMessage(Component.text("Usage: /lifesteal giverevival <player>").color(NamedTextColor.RED)); return; }
-        Player target = plugin.getServer().getPlayer(args[0]);
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         target.getInventory().addItem(plugin.getItemManager().getRevivalTotem());
         sender.sendMessage(Component.text("Gave Revival Totem to " + target.getName()).color(NamedTextColor.GREEN));
@@ -118,7 +117,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED));
             return;
         }
-        if (!plugin.getConfig().isDiscordLeaderboardEnabled()) {
+        if (!plugin.getLifestealConfig().isDiscordLeaderboardEnabled()) {
             sender.sendMessage(Component.text("Discord leaderboard is not enabled in config.").color(NamedTextColor.RED));
             return;
         }
@@ -129,7 +128,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private void cmdArchetype(@NotNull CommandSender sender, String[] args) {
         if (!sender.hasPermission("lifesteal.archetype")) { sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
         if (args.length < 2) { sender.sendMessage(Component.text("Usage: /lifesteal archetype <player> <archetype>").color(NamedTextColor.RED)); return; }
-        Player target = plugin.getServer().getPlayer(args[0]);
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         var archetypes = plugin.getArchetypeManager().getAllArchetypes();
         var archetype = archetypes.stream().filter(a -> a.getId().equalsIgnoreCase(args[1])).findFirst().orElse(null);
@@ -145,7 +144,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     }
     
     private void cmdVersion(@NotNull CommandSender sender) {
-        sender.sendMessage(Component.text("Lifesteal+ v" + plugin.getDescription().getVersion()).color(NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("Lifesteal+ v" + ((Plugin) plugin).getDescription().getVersion()).color(NamedTextColor.GREEN));
     }
     
     @Override

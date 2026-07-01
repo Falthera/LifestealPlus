@@ -5,6 +5,7 @@ import dev.lifesteal.api.LifestealConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,17 +25,17 @@ public class LifestealConfigImpl implements LifestealConfig {
     }
     
     private void loadMessages() {
-        File file = new File(plugin.getDataFolder(), "messages.yml");
+        File file = new File(((Plugin) plugin).getDataFolder(), "messages.yml");
         if (!file.exists()) {
-            plugin.saveResource("messages.yml", false);
+            ((Plugin) plugin).saveResource("messages.yml", false);
         }
         messages = YamlConfiguration.loadConfiguration(file);
     }
     
     @Override
     public void reload() {
-        plugin.reloadConfig();
-        this.config = plugin.getConfig();
+        ((Plugin) plugin).reloadConfig();
+        this.config = ((Plugin) plugin).getConfig();
         loadMessages();
     }
     

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.AsyncPlayerPreprocessCommandEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ public class AntiOpAbuseListener implements Listener {
     }
     
     @EventHandler
-    public void onPlayerCommand(@NotNull AsyncPlayerPreprocessCommandEvent event) {
+    public void onPlayerCommand(@NotNull PlayerCommandPreprocessEvent event) {
         if (!config.isAntiOpAbuseEnabled()) return;
         Player player = event.getPlayer();
         if (!player.isOp()) return;

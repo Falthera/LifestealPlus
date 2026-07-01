@@ -14,8 +14,9 @@ import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class Lifesteal extends JavaPlugin implements Lifesteal {
+public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal {
     private static Lifesteal instance;
     private LifestealConfigImpl config;
     private DatabaseManager databaseManager;
@@ -100,10 +101,10 @@ public class Lifesteal extends JavaPlugin implements Lifesteal {
     @NotNull @Override public RecipeManager getRecipeManager() { return recipeManager; }
     @NotNull @Override public GUIManager getGUIManager() { return guiManager; }
     @NotNull @Override public RevivalManager getRevivalManager() { return revivalManager; }
-    @NotNull @Override public LifestealConfig getConfig() { return config; }
-    public LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
     @Override public boolean isPlaceholderAPIHookEnabled() { return placeholderAPIEnabled; }
     @Override public boolean isVaultHookEnabled() { return vaultEnabled; }
-    @Nullable @Override public Object getVaultEconomy() { return vaultEconomy; }
+    @Override @Nullable public Object getVaultEconomy() { return vaultEconomy; }
+    @NotNull @Override public LifestealConfig getLifestealConfig() { return config; }
+    public dev.lifesteal.managers.LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
     public DatabaseManager getDatabaseManager() { return databaseManager; }
 }

@@ -8,6 +8,7 @@ import dev.lifesteal.utils.DiscordWebhook;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class LeaderboardManager {
     private void startScheduler() {
         long interval = config.getDiscordLeaderboardIntervalTicks();
         if (interval <= 0) return;
-        taskId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::sendLeaderboard, interval, interval).getTaskId();
+        taskId = Bukkit.getScheduler().runTaskTimerAsynchronously((Plugin) plugin, this::sendLeaderboard, interval, interval).getTaskId();
     }
 
     public void reload() {
@@ -71,7 +72,7 @@ public class LeaderboardManager {
 
     @NotNull
     private String resolveName(@NotNull UUID uuid) {
-        Player online = plugin.getServer().getPlayer(uuid);
+        Player online = ((Plugin) plugin).getServer().getPlayer(uuid);
         if (online != null) return online.getName();
         OfflinePlayer offline = plugin.getServer().getOfflinePlayer(uuid);
         if (offline.getName() != null) return offline.getName();

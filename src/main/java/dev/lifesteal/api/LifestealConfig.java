@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface LifestealConfig {
+    void reload();
     int getDefaultHearts();
     int getMaxHearts();
     double getHeartStealAmount();
@@ -24,21 +25,20 @@ public interface LifestealConfig {
     boolean isVaultEnabled();
     boolean isAsyncDatabase();
     boolean isHotReloadEnabled();
-    @Nullable ConfigurationSection getArchetypeConfig(@NotNull String archetypeId);
-    @NotNull List<String> getDisabledWorlds();
-    @NotNull List<String> getDisabledDimensions();
+    @Nullable org.bukkit.configuration.ConfigurationSection getArchetypeConfig(@NotNull String archetypeId);
+    @NotNull java.util.List<String> getDisabledWorlds();
+    @NotNull java.util.List<String> getDisabledDimensions();
     boolean isWorldEnabled(@NotNull String worldName);
     boolean isDimensionEnabled(@NotNull String dimensionName);
     boolean isAntiOpAbuseEnabled();
     @NotNull String getAntiOpAbuseAnnounceTo();
-    @NotNull List<String> getAntiOpAbuseExcludedCommands();
-    @NotNull List<String> getAntiOpAbuseTrackedCommands();
+    @NotNull java.util.List<String> getAntiOpAbuseExcludedCommands();
+    @NotNull java.util.List<String> getAntiOpAbuseTrackedCommands();
     @NotNull String getAntiOpAbuseAnnouncementMessage();
     boolean isDiscordLeaderboardEnabled();
     @NotNull String getDiscordLeaderboardWebhookUrl();
     long getDiscordLeaderboardIntervalTicks();
     int getDiscordLeaderboardTop();
     @NotNull String getDiscordLeaderboardTitle();
-    void reload();
-    @NotNull FileConfiguration getBukkitConfig();
+    @NotNull org.bukkit.configuration.file.FileConfiguration getBukkitConfig();
 }
