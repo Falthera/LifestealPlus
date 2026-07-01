@@ -69,7 +69,6 @@ public class RevivalManagerImpl implements RevivalManager {
             plugin.getArchetypeManager().loadPlayerData(target.getUniqueId());
             target.sendMessage(net.kyori.adventure.text.Component.text("You have been revived!").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
             target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
-            target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
             
             if (config.isRevivalBroadcastEnabled()) {
                 var msg = config.getRevivalBroadcastMessage().replace("%player%", target.getName()).replace("%reviver%", reviver.getName());
