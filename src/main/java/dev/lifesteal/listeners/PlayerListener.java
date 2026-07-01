@@ -5,6 +5,8 @@ import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.api.RevivalManager;
 import dev.lifesteal.api.ItemManager;
+import dev.lifesteal.events.HeartCrystalUseEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -27,6 +29,7 @@ public class PlayerListener implements Listener {
     private final ItemManager itemManager;
     private final RevivalManager revivalManager;
     private final LifestealConfig config;
+    private final java.util.Map<UUID, Long> heartCrystalCooldowns = new java.util.concurrent.ConcurrentHashMap<>();
     
     public PlayerListener(@NotNull Lifesteal plugin, @NotNull HeartManager heartManager,
                           @NotNull dev.lifesteal.api.ArchetypeManager archetypeManager,
@@ -49,7 +52,13 @@ public class PlayerListener implements Listener {
     
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
-        archetypeManager.applyArchetypeEffects(event.getPlayer());
+        Player player = event.getPlayer();
+        archetypeManager.applyArchetypeEffects(player);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            int hearts = heartManager.getHearts(player.getUniqueId());
+            player.setMaxHealth(Math.max(1.0, hearts * 2.0));
+            player.setHealth(Math.min(hearts * 2.0, player.getMaxHealth()));
+        }, 2L);
     }
     
     @EventHandler
@@ -96,12 +105,26 @@ public class PlayerListener implements Listener {
         
         if (itemManager.isHeartCrystal(event.getItem())) {
             event.setCancelled(true);
+            long cooldownMs = config.getHeartCrystalCooldownSeconds() * 1000L;
+            if (cooldownMs > 0) {
+                long lastUse = heartCrystalCooldowns.getOrDefault(player.getUniqueId(), 0L);
+                long now = System.currentTimeMillis();
+                if (now - lastUse < cooldownMs) {
+                    long remaining = (cooldownMs - (now - lastUse)) / 1000L;
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Cooldown! Wait " + remaining + "s").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+                    return;
+                }
+            }
             int amount = Math.min(event.getItem().getAmount(), 1);
             double totalHearts = amount * config.getHeartCrystalAmount();
+            var crystalEvent = new HeartCrystalUseEvent(player, (int) totalHearts);
+            plugin.getServer().getPluginManager().callEvent(crystalEvent);
+            if (crystalEvent.isCancelled()) return;
             heartManager.addHearts(player.getUniqueId(), (int) totalHearts);
             event.getItem().setAmount(event.getItem().getAmount() - amount);
             player.sendMessage(net.kyori.adventure.text.Component.text("Gained +" + (int) totalHearts + " heart!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
+            if (cooldownMs > 0) heartCrystalCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         }
     }
     
@@ -109,6 +132,7 @@ public class PlayerListener implements Listener {
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         if (!(event.getRightClicked() instanceof Player target)) return;
         if (!itemManager.isRevivalTotem(event.getPlayer().getInventory().getItemInMainHand())) return;
+        event.setCancelled(true);
         var future = plugin.getRevivalManager().revivePlayer(event.getPlayer(), target);
         future.thenAccept(success -> {
             if (!success) {

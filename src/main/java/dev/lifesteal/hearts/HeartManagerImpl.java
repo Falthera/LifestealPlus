@@ -4,6 +4,9 @@ import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.database.DatabaseManager;
+import dev.lifesteal.events.PlayerGainHeartEvent;
+import dev.lifesteal.events.PlayerLoseHeartEvent;
+import dev.lifesteal.events.PlayerPermanentDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.BanList;
 import org.bukkit.Sound;
@@ -105,12 +108,15 @@ public class HeartManagerImpl implements HeartManager {
                 
                 if (killerOnline != null && killerOnline.isOnline()) {
                     updatePlayerHealth(killerOnline);
+                    plugin.getServer().getPluginManager().callEvent(new PlayerGainHeartEvent(killerOnline, (int) stealAmount, heartCache.getOrDefault(killerId, defaultHearts.get())));
                     killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
                 }
                 if (victimOnline != null && victimOnline.isOnline()) {
                     updatePlayerHealth(victimOnline);
+                    plugin.getServer().getPluginManager().callEvent(new PlayerLoseHeartEvent(victimOnline, (int) stealAmount, heartCache.getOrDefault(victimId, defaultHearts.get())));
                     victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
                     if (newVictimHearts <= 0) {
+                        plugin.getServer().getPluginManager().callEvent(new PlayerPermanentDeathEvent(victimOnline, 0));
                         plugin.getServer().getBanList(BanList.Type.NAME).addBan(victimOnline.getName(), config.getBanReason(), null, null);
                         victimOnline.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
                         if (config.isBroadcastEnabled()) {
