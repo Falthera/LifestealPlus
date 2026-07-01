@@ -44,6 +44,7 @@ public class LifestealConfigImpl implements LifestealConfig {
     @Override public double getHeartStealAmount() { return config.getDouble("settings.heart-steal-amount", 1.0); }
     @Override public double getHeartCrystalAmount() { return config.getDouble("settings.heart-crystal-amount", 1.0); }
     @Override public long getHeartCrystalCooldownSeconds() { return config.getLong("settings.heart-crystal-cooldown-seconds", 0); }
+    @Override public int getWithdrawHeartAmount() { return config.getInt("settings.withdraw-heart-amount", 1); }
     @Override @NotNull public String getBanReason() { return config.getString("settings.ban-reason", "&cYou ran out of hearts!"); }
     @Override public boolean isBroadcastEnabled() { return config.getBoolean("settings.broadcast-death.enabled", true); }
     @Override @NotNull public String getBroadcastMessage() { return config.getString("settings.broadcast-death.message", "<red><player> has run out of hearts!"); }

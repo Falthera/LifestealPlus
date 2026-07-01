@@ -4,6 +4,7 @@ settings:
   heart-steal-amount: 1
   heart-crystal-amount: 1
   heart-crystal-cooldown-seconds: 0
+  withdraw-heart-amount: 1
   ban-reason: "&cYou ran out of hearts!"
   broadcast-death:
     enabled: true

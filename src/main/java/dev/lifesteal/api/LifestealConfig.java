@@ -14,6 +14,7 @@ public interface LifestealConfig {
     double getHeartStealAmount();
     double getHeartCrystalAmount();
     long getHeartCrystalCooldownSeconds();
+    int getWithdrawHeartAmount();
     @NotNull String getBanReason();
     boolean isBroadcastEnabled();
     @NotNull String getBroadcastMessage();
