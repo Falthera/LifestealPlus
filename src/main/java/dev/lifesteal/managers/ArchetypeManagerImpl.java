@@ -143,10 +143,10 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 }
             }
             case "aquatic" -> {
-                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.CONDUIT_POWER);
+                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.DOLPHINS_GRACE);
                 if (water == null) {
                     player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.CONDUIT_POWER, Integer.MAX_VALUE, 0, true, true));
+                        org.bukkit.potion.PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, true, false));
                 }
             }
             case "pyromancer" -> {
