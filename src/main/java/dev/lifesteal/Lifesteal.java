@@ -9,6 +9,7 @@ import dev.lifesteal.hearts.HeartManagerImpl;
 import dev.lifesteal.items.ItemManagerImpl;
 import dev.lifesteal.listeners.AntiOpAbuseListener;
 import dev.lifesteal.managers.ArchetypeManagerImpl;
+import dev.lifesteal.managers.CombatManager;
 import dev.lifesteal.managers.LeaderboardManager;
 import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
@@ -27,6 +28,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     private GUIManagerImpl guiManager;
     private RevivalManagerImpl revivalManager;
     private LeaderboardManager leaderboardManager;
+    private CombatManager combatManager;
     private boolean placeholderAPIEnabled = false;
     private boolean vaultEnabled = false;
     private Object vaultEconomy;
@@ -45,6 +47,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         this.recipeManager = new RecipeManagerImpl(this, config);
         this.guiManager = new GUIManagerImpl(this, config);
         this.revivalManager = new RevivalManagerImpl(this, databaseManager, config, heartManager, archetypeManager);
+        this.combatManager = new CombatManager(this, databaseManager, config);
         heartManager.loadAllOnline();
         archetypeManager.loadAllOnline();
         this.leaderboardManager = new LeaderboardManager(this, databaseManager, config, archetypeManager);
@@ -74,6 +77,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         pm.registerEvents(new dev.lifesteal.listeners.InventoryListener(this, heartManager, itemManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.BanListener(this, heartManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.AntiOpAbuseListener(this, config), this);
+        pm.registerEvents(new dev.lifesteal.listeners.CombatListener(this, combatManager, heartManager, config), this);
         pm.registerEvents(guiManager, this);
     }
     
@@ -103,6 +107,11 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
             cmd.setExecutor(new LifestealCommand(this));
             cmd.setTabCompleter(new LifestealCommand(this));
         }
+        cmd = getCommand("trust");
+        if (cmd != null) {
+            cmd.setExecutor(new LifestealCommand(this));
+            cmd.setTabCompleter(new LifestealCommand(this));
+        }
     }
     
     @Override
@@ -125,5 +134,6 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     @Override @Nullable public Object getVaultEconomy() { return vaultEconomy; }
     @NotNull @Override public LifestealConfig getLifestealConfig() { return config; }
     public dev.lifesteal.managers.LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
+    public CombatManager getCombatManager() { return combatManager; }
     public DatabaseManager getDatabaseManager() { return databaseManager; }
 }

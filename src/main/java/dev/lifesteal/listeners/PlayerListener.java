@@ -76,6 +76,10 @@ public class PlayerListener implements Listener {
         
         Player killer = victim.getKiller();
         if (killer != null) {
+            if (config.isTrustEnabled() && plugin.getCombatManager().isTrusted(killer.getUniqueId(), victim.getUniqueId())) {
+                killer.sendMessage(net.kyori.adventure.text.Component.text("You trust " + victim.getName() + ", no heart stolen.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+                return;
+            }
             heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
             heartManager.incrementKills(killer.getUniqueId());
             playEpicKillVFX(killer, victim);

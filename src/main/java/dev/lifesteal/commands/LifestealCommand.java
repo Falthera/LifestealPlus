@@ -5,6 +5,7 @@ import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.ItemManager;
 import dev.lifesteal.api.Lifesteal;
 import dev.lifesteal.api.LifestealConfig;
+import dev.lifesteal.managers.CombatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -23,11 +24,13 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private final Lifesteal plugin;
     private final LifestealConfig config;
     private final dev.lifesteal.api.ArchetypeManager archetypeManager;
+    private final CombatManager combatManager;
     
     public LifestealCommand(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
         this.config = plugin.getLifestealConfig();
         this.archetypeManager = plugin.getArchetypeManager();
+        this.combatManager = plugin.getCombatManager();
     }
     
     @Override
@@ -69,6 +72,9 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             case "withdraw" -> cmdWithdraw(sender, Arrays.copyOfRange(args, 1, args.length));
             case "leaderboard" -> cmdLeaderboard(sender, Arrays.copyOfRange(args, 1, args.length));
             case "version" -> cmdVersion(sender);
+            case "trust" -> cmdTrust(sender, Arrays.copyOfRange(args, 1, args.length));
+            case "untrust" -> cmdUntrust(sender, Arrays.copyOfRange(args, 1, args.length));
+            case "trusts" -> cmdTrusts(sender);
             default -> sendHelp(sender);
         }
         return true;
@@ -76,11 +82,12 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     private void sendHelp(@NotNull CommandSender sender) {
         sender.sendMessage(Component.text("Lifesteal+ Help:").color(NamedTextColor.GOLD));
-        for (String s : List.of("/lifesteal help", "/lifesteal reload", "/lifesteal hearts <player>",
-                                "/lifesteal sethearts <player> <amount>", "/lifesteal giveheart <player>",
-                                "/lifesteal giverevival <player>", "/lifesteal revive <player>",
-                                "/lifesteal archetype <player> <archetype>", "/lifesteal gui", "/lifesteal withdraw <amount>",
-                                "/lifesteal leaderboard", "/lifesteal version")) {
+        for (String s : List.of("/hearts help", "/hearts reload", "/hearts hearts <player>",
+                                "/hearts sethearts <player> <amount>", "/hearts giveheart <player>",
+                                "/hearts giverevival <player>", "/hearts revive <player>",
+                                "/hearts archetype <player> <archetype>", "/hearts gui", "/hearts withdraw <amount>",
+                                "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
+                                "/hearts untrust <player>", "/hearts trusts")) {
             sender.sendMessage(Component.text(s).color(NamedTextColor.WHITE));
         }
     }
@@ -202,6 +209,75 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("Lifesteal+ v" + ((Plugin) plugin).getDescription().getVersion()).color(NamedTextColor.GREEN));
     }
     
+    private void cmdTrust(@NotNull CommandSender sender, String[] args) {
+        if (!config.isTrustEnabled()) {
+            sender.sendMessage(Component.text("Trust system is disabled on this server.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED));
+            return;
+        }
+        if (args.length < 1) {
+            player.sendMessage(Component.text("Usage: /hearts trust <player>").color(NamedTextColor.RED));
+            return;
+        }
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
+        if (target == null) {
+            player.sendMessage(Component.text("Player not found").color(NamedTextColor.RED));
+            return;
+        }
+        if (target.getUniqueId().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("You cannot trust yourself").color(NamedTextColor.RED));
+            return;
+        }
+        plugin.getCombatManager().addTrust(player.getUniqueId(), target.getUniqueId());
+        player.sendMessage(Component.text("You now trust " + target.getName() + ". They will not steal your heart on kill.").color(NamedTextColor.GREEN));
+    }
+    
+    private void cmdUntrust(@NotNull CommandSender sender, String[] args) {
+        if (!config.isTrustEnabled()) {
+            sender.sendMessage(Component.text("Trust system is disabled on this server.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED));
+            return;
+        }
+        if (args.length < 1) {
+            player.sendMessage(Component.text("Usage: /hearts untrust <player>").color(NamedTextColor.RED));
+            return;
+        }
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
+        if (target == null) {
+            player.sendMessage(Component.text("Player not found").color(NamedTextColor.RED));
+            return;
+        }
+        plugin.getCombatManager().removeTrust(player.getUniqueId(), target.getUniqueId());
+        player.sendMessage(Component.text("You no longer trust " + target.getName()).color(NamedTextColor.YELLOW));
+    }
+    
+    private void cmdTrusts(@NotNull CommandSender sender) {
+        if (!config.isTrustEnabled()) {
+            sender.sendMessage(Component.text("Trust system is disabled on this server.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED));
+            return;
+        }
+        List<UUID> trusted = ((dev.lifesteal.Lifesteal) plugin).getDatabaseManager().loadAllTrusted(player.getUniqueId());
+        if (trusted.isEmpty()) {
+            player.sendMessage(Component.text("You don't trust anyone.").color(NamedTextColor.YELLOW));
+            return;
+        }
+        player.sendMessage(Component.text("You trust:").color(NamedTextColor.GREEN));
+        for (UUID uuid : trusted) {
+            String name = plugin.getServer().getOfflinePlayer(uuid).getName();
+            player.sendMessage(Component.text("- " + (name != null ? name : uuid.toString())).color(NamedTextColor.WHITE));
+        }
+    }
+    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("archetype")) {
@@ -217,7 +293,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             return List.of();
         }
         if (args.length == 1) {
-            return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version");
+            return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts");
         }
         if (args[0].equalsIgnoreCase("archetype") && args.length == 2) {
             return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());

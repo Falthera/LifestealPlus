@@ -42,4 +42,7 @@ public interface LifestealConfig {
     int getDiscordLeaderboardTop();
     @NotNull String getDiscordLeaderboardTitle();
     @NotNull org.bukkit.configuration.file.FileConfiguration getBukkitConfig();
+    boolean isCombatLogEnabled();
+    long getCombatLogDurationSeconds();
+    boolean isTrustEnabled();
 }

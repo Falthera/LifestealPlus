@@ -76,11 +76,13 @@ public class DatabaseManager {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_archetypes (uuid TEXT PRIMARY KEY, archetype TEXT NOT NULL);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS revivals (target_uuid TEXT PRIMARY KEY, revived INTEGER NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_kills (uuid TEXT PRIMARY KEY, kills INTEGER NOT NULL DEFAULT 0);");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_trusts (player_uuid TEXT NOT NULL, trusted_uuid TEXT NOT NULL, PRIMARY KEY(player_uuid, trusted_uuid));");
             } else {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_hearts (uuid VARCHAR(36) PRIMARY KEY, hearts INT NOT NULL DEFAULT 10);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_archetypes (uuid VARCHAR(36) PRIMARY KEY, archetype VARCHAR(64) NOT NULL);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS revivals (target_uuid VARCHAR(36) PRIMARY KEY, revived INT NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_kills (uuid VARCHAR(36) PRIMARY KEY, kills INT NOT NULL DEFAULT 0);");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_trusts (player_uuid VARCHAR(36) NOT NULL, trusted_uuid VARCHAR(36) NOT NULL, PRIMARY KEY(player_uuid, trusted_uuid));");
             }
         } catch (SQLException e) {
             ((Plugin) plugin).getLogger().severe("Failed to run migrations: " + e.getMessage());
@@ -201,6 +203,57 @@ public class DatabaseManager {
     }
     
     public record PlayerKillsRecord(@NotNull UUID uuid, int kills) {}
+    
+    // --- Trust methods ---
+    public boolean loadTrust(@NotNull UUID playerUuid, @NotNull UUID trustedUuid) {
+        String sql = "SELECT 1 FROM player_trusts WHERE player_uuid = ? AND trusted_uuid = ?";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            ps.setString(2, trustedUuid.toString());
+            try (var rs = ps.executeQuery()) { return rs.next(); }
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to load trust: " + e.getMessage());
+        }
+        return false;
+    }
+    
+    public void saveTrust(@NotNull UUID playerUuid, @NotNull UUID trustedUuid) {
+        String sql = storageType.equalsIgnoreCase("sqlite")
+            ? "INSERT OR IGNORE INTO player_trusts (player_uuid, trusted_uuid) VALUES (?, ?)"
+            : "INSERT IGNORE INTO player_trusts (player_uuid, trusted_uuid) VALUES (?, ?)";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            ps.setString(2, trustedUuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to save trust: " + e.getMessage());
+        }
+    }
+    
+    public void removeTrust(@NotNull UUID playerUuid, @NotNull UUID trustedUuid) {
+        String sql = "DELETE FROM player_trusts WHERE player_uuid = ? AND trusted_uuid = ?";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            ps.setString(2, trustedUuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to remove trust: " + e.getMessage());
+        }
+    }
+    
+    public List<UUID> loadAllTrusted(@NotNull UUID playerUuid) {
+        List<UUID> results = new ArrayList<>();
+        String sql = "SELECT trusted_uuid FROM player_trusts WHERE player_uuid = ?";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) results.add(UUID.fromString(rs.getString("trusted_uuid")));
+            }
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to load trusted list: " + e.getMessage());
+        }
+        return results;
+    }
     
     public DataSource getDataSource() { return dataSource; }
     public Executor getExecutor() { return executor; }

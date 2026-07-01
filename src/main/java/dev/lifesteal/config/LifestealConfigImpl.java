@@ -72,6 +72,9 @@ public class LifestealConfigImpl implements LifestealConfig {
     @Override public int getDiscordLeaderboardTop() { return Math.min(10, Math.max(1, config.getInt("discord-leaderboard.top", 10))); }
     @Override @NotNull public String getDiscordLeaderboardTitle() { return config.getString("discord-leaderboard.title", "Lifesteal+ Top Killers"); }
     @Override @NotNull public FileConfiguration getBukkitConfig() { return config; }
+    @Override public boolean isCombatLogEnabled() { return config.getBoolean("combat-log.enabled", true); }
+    @Override public long getCombatLogDurationSeconds() { return config.getLong("combat-log.duration-seconds", 30); }
+    @Override public boolean isTrustEnabled() { return config.getBoolean("trust.enabled", true); }
     
     @NotNull
     public String getMessage(@NotNull String key, @NotNull String def) {

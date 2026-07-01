@@ -1,41 +1,49 @@
 name: LifestealPlus
 main: dev.lifesteal.Lifesteal
-version: 2.0.0
-api-version: '1.21.11'
+version: ${project.version}
+api-version: '1.21'
 author: Falthera
-description: A production-ready Lifesteal plugin for PaperMC
-softdepend: [PlaceholderAPI, Vault]
+description: Lifesteal SMP plugin — lose hearts on death, gain hearts on kill.
+
 commands:
-  lifesteal:
-    description: Main LifestealPlus command
-    usage: /<command>
-    aliases: [ls, hearts, lifesteal]
+  hearts:
+    description: Main Lifesteal+ command
+    usage: /<command> <subcommand>
+    aliases: [lifesteal, ls]
   withdraw:
-    description: Withdraw hearts to heart crystals
-    usage: /withdraw <amount>
-    permission: lifesteal.withdraw
+    description: Withdraw hearts into a heart crystal item
+    usage: /<command> <amount>
   archetype:
-    description: View your archetype
-    usage: /archetype
-    permission: lifesteal.gui
+    description: Manage your or another player's archetype
+    usage: /<command> <player> <archetype>
+
 permissions:
-  lifesteal.admin:
-    description: Full admin access
-    default: op
   lifesteal.reload:
-    description: Reload configuration
+    description: Allows reloading the plugin config
     default: op
-  lifesteal.hearts:
-    description: Manage hearts
+  lifesteal.give:
+    description: Allows giving hearts or revival totems
     default: op
   lifesteal.revive:
-    description: Revive players
+    description: Allows using revival totems
     default: op
   lifesteal.archetype:
-    description: Manage archetypes
+    description: Allows setting archetypes for other players
+    default: op
+  lifesteal.hearts:
+    description: Allows viewing and managing hearts
+    default: op
+  lifesteal.leaderboard:
+    description: Allows sending the leaderboard to Discord
     default: op
   lifesteal.gui:
-    description: Open GUI
+    description: Allows opening the archetype selection GUI
+    default: true
+  lifesteal.withdraw:
+    description: Allows withdrawing hearts as items
+    default: true
+  lifesteal.trust:
+    description: Allows managing trusted players
     default: true
   lifesteal.give:
     description: Give items
