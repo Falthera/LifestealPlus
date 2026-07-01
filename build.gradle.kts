@@ -25,7 +25,9 @@ tasks.withType<JavaCompile> {
     options.release.set(21)
 }
 
-tasks.shadowJar {
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+tasks.named("shadowJar", ShadowJar::class) {
     archiveClassifier.set("")
     archiveFileName.set("Lifesteal+.jar")
     relocate("com.zaxxer.hikari", "dev.lifesteal.libs.hikari")
