@@ -16,7 +16,7 @@ public class WindwalkerArchetype implements Listener {
     public WindwalkerArchetype(@NotNull dev.lifesteal.Lifesteal plugin) { this.plugin = plugin; }
     public Listener getListener() { return this; }
     
-@EventHandler
+    @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isWindwalker(player)) return;

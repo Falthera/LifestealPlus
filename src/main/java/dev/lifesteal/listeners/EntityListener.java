@@ -12,9 +12,7 @@ public class EntityListener implements Listener {
     private final Lifesteal plugin;
     private final LifestealConfig config;
     
-    public EntityListener(@NotNull Lifesteal plugin, @NotNull dev.lifesteal.api.HeartManager heartManager,
-                          @NotNull dev.lifesteal.api.ArchetypeManager archetypeManager,
-                          @NotNull LifestealConfig config) {
+    public EntityListener(@NotNull Lifesteal plugin, @NotNull LifestealConfig config) {
         this.plugin = plugin; this.config = config;
     }
     

@@ -39,11 +39,10 @@ public class HeartManagerImpl implements HeartManager {
     
     @Override
     public CompletableFuture<Void> setHearts(@NotNull UUID playerId, int amount) {
-        return CompletableFuture.runAsync(() -> {
-            int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
-            heartCache.put(playerId, clamped);
-            savePlayerData(playerId, true);
-        }, database.getExecutor());
+        int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
+        heartCache.put(playerId, clamped);
+        if (clamped == 0) return handleZeroHearts(playerId);
+        return savePlayerData(playerId, true);
     }
     
     @Override

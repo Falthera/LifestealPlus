@@ -70,7 +70,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     private void registerListeners() {
         var pm = getServer().getPluginManager();
         pm.registerEvents(new dev.lifesteal.listeners.PlayerListener(this, heartManager, archetypeManager, itemManager, revivalManager, config), this);
-        pm.registerEvents(new dev.lifesteal.listeners.EntityListener(this, heartManager, archetypeManager, config), this);
+        pm.registerEvents(new dev.lifesteal.listeners.EntityListener(this, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.InventoryListener(this, heartManager, itemManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.BanListener(this, heartManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.AntiOpAbuseListener(this, config), this);

@@ -1,5 +1,5 @@
 settings:
-  default-hearts: 10
+  default-hearts: 1
   max-hearts: 20
   heart-steal-amount: 1
   heart-crystal-amount: 1
