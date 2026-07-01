@@ -147,7 +147,7 @@ public class HeartManagerImpl implements HeartManager {
         loadKills(player.getUniqueId());
     }
     @Override public void onPlayerQuit(@NotNull Player player) { 
-        savePlayerData(player.getUniqueId(), true); 
+        savePlayerData(player.getUniqueId(), false); 
         heartCache.remove(player.getUniqueId());
         killCache.remove(player.getUniqueId());
     }
