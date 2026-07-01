@@ -93,16 +93,40 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     }
     
     @Override
-    public void onPlayerJoin(@NotNull Player player) { loadPlayerData(player.getUniqueId()); }
+    public void onPlayerJoin(@NotNull Player player) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            var archetypeId = database.loadArchetype(player.getUniqueId());
+            Bukkit.getScheduler().getMainThreadExecutor(plugin).execute(() -> {
+                Archetype existingArchetype = null;
+                if (archetypeId != null && registeredArchetypes.containsKey(archetypeId)) {
+                    existingArchetype = registeredArchetypes.get(archetypeId);
+                    cache.put(player.getUniqueId(), existingArchetype);
+                }
+                if (existingArchetype == null) {
+                    Archetype random = getRandomArchetype();
+                    cache.put(player.getUniqueId(), random);
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has been chosen: " + random.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
+                    player.showTitle(net.kyori.adventure.title.Title.title(
+                        net.kyori.adventure.text.Component.text("WELCOME TO LIFESTEAL+").color(net.kyori.adventure.text.format.NamedTextColor.RED),
+                        net.kyori.adventure.text.Component.text("Your destiny awaits...").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW),
+                        10, 50, 10));
+                    player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
+                }
+                applyArchetypeEffects(player);
+            });
+        });
+    }
     
     @Override
     public void loadPlayerData(@NotNull UUID playerId) {
-        CompletableFuture.supplyAsync(() -> database.loadArchetype(playerId), database.getExecutor())
-            .thenAcceptAsync(archetypeId -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            var archetypeId = database.loadArchetype(playerId);
+            Bukkit.getScheduler().getMainThreadExecutor(plugin).execute(() -> {
                 if (archetypeId != null && registeredArchetypes.containsKey(archetypeId)) {
                     cache.put(playerId, registeredArchetypes.get(archetypeId));
                 }
-            }, Bukkit.getScheduler().getMainThreadExecutor(plugin));
+            });
+        });
     }
     
     @Override

@@ -3,13 +3,8 @@ package dev.lifesteal.listeners;
 import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
-import dev.lifesteal.api.RevivalManager;
-import dev.lifesteal.archetypes.Archetype;
-import dev.lifesteal.events.ArchetypeSelectEvent;
 import dev.lifesteal.events.HeartCrystalUseEvent;
 import dev.lifesteal.api.ItemManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -43,24 +38,6 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         heartManager.onPlayerJoin(player);
-        
-        if (archetypeManager.needsArchetypeSelection(player)) {
-            playArchetypeSelectionCutscene(player);
-            Archetype random = archetypeManager.getRandomArchetype();
-            archetypeManager.setArchetype(player, random);
-            archetypeManager.applyArchetypeEffects(player);
-            player.sendMessage(Component.text("Your archetype has been chosen: " + random.getName() + "!").color(NamedTextColor.GOLD));
-        } else {
-            archetypeManager.applyArchetypeEffects(player);
-        }
-    }
-    
-    private void playArchetypeSelectionCutscene(@NotNull Player player) {
-        player.showTitle(net.kyori.adventure.title.Title.title(
-            Component.text("WELCOME TO LIFESTEAL+").color(NamedTextColor.RED),
-            Component.text("Your destiny awaits...").color(NamedTextColor.YELLOW),
-            10, 50, 10));
-        player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
     }
     
     @EventHandler
