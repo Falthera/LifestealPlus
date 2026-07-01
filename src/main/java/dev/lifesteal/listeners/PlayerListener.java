@@ -67,6 +67,9 @@ public class PlayerListener implements Listener {
             heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
             heartManager.incrementKills(killer.getUniqueId());
             playEpicKillVFX(killer, victim);
+        } else {
+            heartManager.removeHearts(victim.getUniqueId(), 1);
+            event.getDrops().add(itemManager.getHeartCrystal(1));
         }
     }
     
