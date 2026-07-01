@@ -25,7 +25,7 @@ tasks.withType<JavaCompile> {
     options.release.set(21)
 }
 
-tasks.named("jar") {
+tasks.named<Jar>("jar") {
     archiveClassifier.set("")
 }
 
