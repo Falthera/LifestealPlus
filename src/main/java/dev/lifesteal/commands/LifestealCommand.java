@@ -32,6 +32,18 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (command.getName().equalsIgnoreCase("archetype")) {
+            if (args.length == 0) {
+                cmdArchetypeInfo(sender);
+                return true;
+            }
+            cmdArchetype(sender, args);
+            return true;
+        }
+        if (command.getName().equalsIgnoreCase("withdraw")) {
+            cmdWithdraw(sender, args);
+            return true;
+        }
         if (args.length == 0) {
             sendHelp(sender);
             return true;
@@ -190,6 +202,18 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (command.getName().equalsIgnoreCase("archetype")) {
+            if (args.length == 1) {
+                return plugin.getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+            }
+            if (args.length == 2) {
+                return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
+            }
+            return List.of();
+        }
+        if (command.getName().equalsIgnoreCase("withdraw")) {
+            return List.of();
+        }
         if (args.length == 1) {
             return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version");
         }
