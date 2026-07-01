@@ -19,7 +19,6 @@ public class HeartManagerImpl implements HeartManager {
     private final DatabaseManager database;
     private final LifestealConfig config;
     private final Map<UUID, Integer> heartCache = new ConcurrentHashMap<>();
-    private final Map<UUID, Long> lastSteal = new ConcurrentHashMap<>();
     private final AtomicInteger defaultHearts = new AtomicInteger();
     private final AtomicInteger maxHearts = new AtomicInteger();
     private final double stealAmount;
@@ -79,39 +78,29 @@ public class HeartManagerImpl implements HeartManager {
     
     @Override
     public void stealHeart(@NotNull UUID killerId, @NotNull UUID victimId) {
-        long now = System.currentTimeMillis();
-        Long last = lastSteal.get(killerId);
-        if (last != null && now - last < 1000) return;
-        lastSteal.put(killerId, now);
-        
-        int victimHearts = getHearts(victimId);
-        if (victimHearts <= 0) return;
-        int killerHearts = getHearts(killerId);
-        if (killerHearts >= maxHearts.get()) return;
-        
-        setHeartsSync(victimId, Math.max(0, victimHearts - (int) stealAmount));
-        addHeartsSync(killerId, 1);
-        
-        Player victimOnline = plugin.getServer().getPlayer(victimId);
-        Player killerOnline = plugin.getServer().getPlayer(killerId);
-        
-        if (killerOnline != null && killerOnline.isOnline()) {
-            killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
-        }
-        if (victimOnline != null && victimOnline.isOnline()) {
-            victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
-        }
-    }
-    
-    private void setHeartsSync(@NotNull UUID playerId, int amount) {
-        int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
-        heartCache.put(playerId, clamped);
-        database.saveHearts(playerId, clamped);
-    }
-    
-    private void addHeartsSync(@NotNull UUID playerId, int amount) {
-        int current = getHearts(playerId);
-        setHeartsSync(playerId, Math.min(maxHearts.get(), current + amount));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            int victimHearts = heartCache.getOrDefault(victimId, defaultHearts.get());
+            int killerHearts = heartCache.getOrDefault(killerId, defaultHearts.get());
+            
+            if (victimHearts <= 0) return;
+            if (killerHearts >= maxHearts.get()) return;
+            
+            heartCache.put(victimId, Math.max(0, victimHearts - (int) stealAmount));
+            database.saveHearts(victimId, Math.max(0, victimHearts - (int) stealAmount));
+            
+            Bukkit.getScheduler().getMainThreadExecutor(plugin).execute(() -> {
+                Player victimOnline = plugin.getServer().getPlayer(victimId);
+                Player killerOnline = plugin.getServer().getPlayer(killerId);
+                
+                if (killerOnline != null && killerOnline.isOnline()) {
+                    killerOnline.getWorld().dropItemNaturally(killerOnline.getLocation(), plugin.getItemManager().getHeartCrystal(1));
+                    killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
+                }
+                if (victimOnline != null && victimOnline.isOnline()) {
+                    victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
+                }
+            });
+        });
     }
     
     @Override public boolean hasReachedZeroHearts(@NotNull UUID playerId) { return isDead(playerId); }
