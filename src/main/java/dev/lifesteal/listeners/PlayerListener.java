@@ -3,6 +3,7 @@ package dev.lifesteal.listeners;
 import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
+import dev.lifesteal.api.RevivalManager;
 import dev.lifesteal.events.HeartCrystalUseEvent;
 import dev.lifesteal.api.ItemManager;
 import org.bukkit.Particle;
