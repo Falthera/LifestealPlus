@@ -293,7 +293,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         }
         player.sendMessage(Component.text("You trust:").color(NamedTextColor.GREEN));
         for (UUID uuid : trusted) {
-            String name = plugin.getServer().getOfflinePlayer(uuid).getName();
+            String name = ((dev.lifesteal.Lifesteal) plugin).getServer().getOfflinePlayer(uuid).getName();
             player.sendMessage(Component.text("- " + (name != null ? name : uuid.toString())).color(NamedTextColor.WHITE));
         }
     }
