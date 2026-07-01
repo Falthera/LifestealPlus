@@ -42,7 +42,12 @@ public class HeartManagerImpl implements HeartManager {
         int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
         heartCache.put(playerId, clamped);
         if (clamped == 0) return handleZeroHearts(playerId);
-        return savePlayerData(playerId, true);
+        return savePlayerData(playerId, true).thenRunAsync(() -> {
+            Player player = plugin.getServer().getPlayer(playerId);
+            if (player != null && player.isOnline()) {
+                updateMaxHealth(player, clamped);
+            }
+        }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
     }
     
     @Override
@@ -83,24 +88,49 @@ public class HeartManagerImpl implements HeartManager {
             int killerHearts = heartCache.getOrDefault(killerId, defaultHearts.get());
             
             if (victimHearts <= 0) return;
-            if (killerHearts >= maxHearts.get()) return;
             
-            heartCache.put(victimId, Math.max(0, victimHearts - (int) stealAmount));
-            database.saveHearts(victimId, Math.max(0, victimHearts - (int) stealAmount));
+            int newVictimHearts = Math.max(0, victimHearts - (int) stealAmount);
+            heartCache.put(victimId, newVictimHearts);
+            database.saveHearts(victimId, newVictimHearts);
+            
+            if (killerHearts < maxHearts.get()) {
+                int newKillerHearts = Math.min(maxHearts.get(), killerHearts + (int) stealAmount);
+                heartCache.put(killerId, newKillerHearts);
+                database.saveHearts(killerId, newKillerHearts);
+            }
             
             Bukkit.getScheduler().getMainThreadExecutor(plugin).execute(() -> {
                 Player victimOnline = plugin.getServer().getPlayer(victimId);
                 Player killerOnline = plugin.getServer().getPlayer(killerId);
                 
                 if (killerOnline != null && killerOnline.isOnline()) {
-                    killerOnline.getWorld().dropItemNaturally(killerOnline.getLocation(), plugin.getItemManager().getHeartCrystal(1));
+                    updatePlayerHealth(killerOnline);
                     killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
                 }
                 if (victimOnline != null && victimOnline.isOnline()) {
+                    updatePlayerHealth(victimOnline);
                     victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
+                    if (newVictimHearts <= 0) {
+                        plugin.getServer().getBanList(BanList.Type.NAME).addBan(victimOnline.getName(), config.getBanReason(), null, null);
+                        victimOnline.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
+                        if (config.isBroadcastEnabled()) {
+                            plugin.getServer().broadcast(net.kyori.adventure.text.Component.text(config.getBroadcastMessage().replace("%player%", victimOnline.getName())));
+                        }
+                    }
                 }
             });
         });
+    }
+    
+    private void updatePlayerHealth(@NotNull Player player) {
+        int hearts = heartCache.getOrDefault(player.getUniqueId(), defaultHearts.get());
+        updateMaxHealth(player, hearts);
+        double health = hearts * 2.0;
+        player.setHealth(Math.min(health, player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue()));
+    }
+    
+    private void updateMaxHealth(@NotNull Player player, int hearts) {
+        player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).setBaseValue(hearts * 2.0);
     }
     
     @Override public boolean hasReachedZeroHearts(@NotNull UUID playerId) { return isDead(playerId); }
@@ -125,7 +155,15 @@ public class HeartManagerImpl implements HeartManager {
     @Override
     public void loadPlayerData(@NotNull UUID playerId) {
         CompletableFuture.supplyAsync(() -> database.loadHearts(playerId), database.getExecutor())
-            .thenAcceptAsync(hearts -> heartCache.put(playerId, hearts), plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
+            .thenAcceptAsync(hearts -> {
+                heartCache.put(playerId, hearts);
+                Player player = plugin.getServer().getPlayer(playerId);
+                if (player != null && player.isOnline()) {
+                    updateMaxHealth(player, hearts);
+                    double health = Math.min(hearts * 2.0, player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue());
+                    player.setHealth(health);
+                }
+            }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
     }
     
     @Override
