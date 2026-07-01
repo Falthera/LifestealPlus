@@ -51,19 +51,12 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        if (!config.isWorldEnabled(victim.getWorld().getName())) return;
+        
         Player killer = victim.getKiller();
         if (killer != null) {
-            heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId()).thenAccept(v -> {
-                heartManager.incrementKills(killer.getUniqueId());
-                if (heartManager.isDead(victim.getUniqueId())) {
-                    event.setDeathMessage(null);
-                }
-            }).exceptionally(throwable -> {
-                if (heartManager.isDead(victim.getUniqueId())) {
-                    event.setDeathMessage(null);
-                }
-                return null;
-            });
+            heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
+            heartManager.incrementKills(killer.getUniqueId());
         }
     }
     
