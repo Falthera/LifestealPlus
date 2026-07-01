@@ -15,7 +15,7 @@ public interface HeartManager {
     CompletableFuture<Void> setHearts(@NotNull UUID playerId, int amount);
     CompletableFuture<Void> addHearts(@NotNull UUID playerId, int amount);
     CompletableFuture<Void> removeHearts(@NotNull UUID playerId, int amount);
-    CompletableFuture<Void> stealHeart(@NotNull UUID killerId, @NotNull UUID victimId);
+    void stealHeart(@NotNull UUID killerId, @NotNull UUID victimId);
     boolean hasReachedZeroHearts(@NotNull UUID playerId);
     boolean isDead(@NotNull UUID playerId);
     void onPlayerDeath(@NotNull UUID playerId, @NotNull UUID killerId);

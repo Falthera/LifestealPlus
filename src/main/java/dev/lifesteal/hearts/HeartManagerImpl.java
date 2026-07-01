@@ -9,6 +9,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -78,33 +79,49 @@ public class HeartManagerImpl implements HeartManager {
     }
     
     @Override
-    public CompletableFuture<Void> stealHeart(@NotNull UUID killerId, @NotNull UUID victimId) {
-        return CompletableFuture.runAsync(() -> {
-            long now = System.currentTimeMillis();
-            Long last = lastSteal.get(killerId);
-            if (last != null && now - last < 1000) return;
-            lastSteal.put(killerId, now);
-            
-            int victimHearts = getHearts(victimId);
-            if (victimHearts <= 0) return;
-            int killerHearts = getHearts(killerId);
-            if (killerHearts >= maxHearts.get()) return;
-            
-            setHearts(victimId, Math.max(0, victimHearts - (int) stealAmount)).join();
-            addHearts(killerId, 1).join();
-            
-            Player victimOnline = plugin.getServer().getPlayer(victimId);
-            Player killerOnline = plugin.getServer().getPlayer(killerId);
-            
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                if (killerOnline != null && killerOnline.isOnline()) {
-                    killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
-                }
-                if (victimOnline != null && victimOnline.isOnline()) {
-                    victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
-                }
-            });
-        }, database.getExecutor());
+    public void stealHeart(@NotNull UUID killerId, @NotNull UUID victimId) {
+        long now = System.currentTimeMillis();
+        Long last = lastSteal.get(killerId);
+        if (last != null && now - last < 1000) return;
+        lastSteal.put(killerId, now);
+        
+        int victimHearts = getHearts(victimId);
+        if (victimHearts <= 0) return;
+        int killerHearts = getHearts(killerId);
+        if (killerHearts >= maxHearts.get()) return;
+        
+        setHeartsSync(victimId, Math.max(0, victimHearts - (int) stealAmount));
+        addHeartsSync(killerId, 1);
+        
+        Player victimOnline = plugin.getServer().getPlayer(victimId);
+        Player killerOnline = plugin.getServer().getPlayer(killerId);
+        
+        if (killerOnline != null && killerOnline.isOnline()) {
+            killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
+        }
+        if (victimOnline != null && victimOnline.isOnline()) {
+            victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
+        }
+    }
+    
+    private void setHeartsSync(@NotNull UUID playerId, int amount) {
+        int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
+        heartCache.put(playerId, clamped);
+        try (Connection conn = ((dev.lifesteal.database.DatabaseManager) database).getDataSource().getConnection();
+             var ps = conn.prepareStatement(storageType.equalsIgnoreCase("sqlite")
+                 ? "INSERT OR REPLACE INTO player_hearts (uuid, hearts) VALUES (?, ?)"
+                 : "INSERT INTO player_hearts (uuid, hearts) VALUES (?, ?) ON DUPLICATE KEY UPDATE hearts = VALUES(hearts)")) {
+            ps.setString(1, playerId.toString());
+            ps.setInt(2, clamped);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save hearts for " + playerId + ": " + e.getMessage());
+        }
+    }
+    
+    private void addHeartsSync(@NotNull UUID playerId, int amount) {
+        int current = getHearts(playerId);
+        setHeartsSync(playerId, Math.min(maxHearts.get(), current + amount));
     }
     
     @Override public boolean hasReachedZeroHearts(@NotNull UUID playerId) { return isDead(playerId); }
