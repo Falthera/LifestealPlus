@@ -41,7 +41,6 @@ public class WindwalkerArchetype implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
         }
     }
-    }
     
     private boolean isWindwalker(Player player) {
         var a = plugin.getArchetypeManager().getArchetype(player);
