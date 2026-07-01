@@ -30,9 +30,9 @@ public class WindwalkerArchetype implements Listener {
                 player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
             }
         }
-    }
+}
     
-@EventHandler
+    @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (!isWindwalker(event.getPlayer())) return;
         var player = event.getPlayer();
