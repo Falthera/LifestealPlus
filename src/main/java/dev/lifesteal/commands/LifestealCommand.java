@@ -330,10 +330,10 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("Grace period is disabled in config.").color(NamedTextColor.RED));
             return;
         }
-        for (Player online : plugin.getServer().getOnlinePlayers()) {
+        for (Player online : ((Plugin) plugin).getServer().getOnlinePlayers()) {
             gracePeriodManager.startGracePeriod(online.getUniqueId());
         }
-        plugin.getServer().broadcast(Component.text("Grace period has started! All players are immune for " + (config.getGracePeriodDurationSeconds() / 60) + " minutes.").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
+        ((Plugin) plugin).getServer().broadcast(Component.text("Grace period has started! All players are immune for " + (config.getGracePeriodDurationSeconds() / 60) + " minutes.").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
     }
     
     private void cmdGracePeriodEnd(@NotNull CommandSender sender) {
@@ -345,12 +345,12 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("Grace period is disabled in config.").color(NamedTextColor.RED));
             return;
         }
-        for (Player online : plugin.getServer().getOnlinePlayers()) {
+        for (Player online : ((Plugin) plugin).getServer().getOnlinePlayers()) {
             if (gracePeriodManager.isInGracePeriod(online.getUniqueId())) {
                 gracePeriodManager.endGracePeriod(online.getUniqueId());
             }
         }
-        plugin.getServer().broadcast(Component.text("Grace period has been ended!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+        ((Plugin) plugin).getServer().broadcast(Component.text("Grace period has been ended!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
     }
     
     private void cmdGracePeriodStatus(@NotNull CommandSender sender) {
