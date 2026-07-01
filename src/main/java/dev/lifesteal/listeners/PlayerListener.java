@@ -4,10 +4,12 @@ import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.api.RevivalManager;
+import dev.lifesteal.archetypes.Archetype;
 import dev.lifesteal.events.ArchetypeSelectEvent;
 import dev.lifesteal.events.HeartCrystalUseEvent;
 import dev.lifesteal.api.ItemManager;
-import net.kyori.adventure.title.Title;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,9 +52,9 @@ public class PlayerListener implements Listener {
     }
     
     private void playArchetypeSelectionCutscene(@NotNull Player player) {
-        player.sendTitle(Title.title(
-            net.kyori.adventure.text.Component.text("WELCOME TO LIFESTEAL+").color(net.kyori.adventure.text.format.NamedTextColor.RED),
-            net.kyori.adventure.text.Component.text("Your destiny awaits...").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW),
+        player.showTitle(net.kyori.adventure.title.Title.title(
+            Component.text("WELCOME TO LIFESTEAL+").color(NamedTextColor.RED),
+            Component.text("Your destiny awaits...").color(NamedTextColor.YELLOW),
             10, 50, 10));
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
     }
@@ -111,7 +113,6 @@ public class PlayerListener implements Listener {
         player.getWorld().spawnParticle(Particle.HEART, player.getLocation(), 50, 0.5, 1, 0.5, 0.1);
         player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 30, 0.5, 1, 0.5, 0.2);
         
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0f, 2.0f);
-        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 1.5f);
+        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 2.0f);
     }
 }
