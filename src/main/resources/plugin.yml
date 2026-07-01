@@ -36,13 +36,13 @@ permissions:
     default: op
   lifesteal.gui:
     description: Open GUI
-    default: op
+    default: true
   lifesteal.give:
     description: Give items
     default: op
   lifesteal.withdraw:
     description: Withdraw hearts
-    default: op
+    default: true
   lifesteal.bypass:
     description: Bypass archetype restrictions
     default: op
