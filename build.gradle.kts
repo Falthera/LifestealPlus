@@ -36,3 +36,7 @@ shadowJar {
         include(dependency("com.zaxxer:HikariCP:5.1.0"))
     }
 }
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
