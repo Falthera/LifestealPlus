@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +49,11 @@ public class PlayerListener implements Listener {
     
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
+        archetypeManager.applyArchetypeEffects(event.getPlayer());
+    }
+    
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
         archetypeManager.applyArchetypeEffects(event.getPlayer());
     }
     

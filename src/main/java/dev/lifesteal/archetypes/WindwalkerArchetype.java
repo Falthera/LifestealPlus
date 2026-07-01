@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +16,7 @@ public class WindwalkerArchetype implements Listener {
     public WindwalkerArchetype(@NotNull dev.lifesteal.Lifesteal plugin) { this.plugin = plugin; }
     public Listener getListener() { return this; }
     
-    @EventHandler
+@EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isWindwalker(player)) return;
@@ -29,16 +28,6 @@ public class WindwalkerArchetype implements Listener {
                 Location loc = player.getLocation();
                 player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
             }
-        }
-}
-    
-    @EventHandler
-    public void onMove(PlayerMoveEvent event) {
-        if (!isWindwalker(event.getPlayer())) return;
-        var player = event.getPlayer();
-        var speedEffect = player.getPotionEffect(PotionEffectType.SPEED);
-        if (speedEffect == null || speedEffect.getDuration() < 40) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
         }
     }
     
