@@ -14,3 +14,10 @@ leaderboard:
   no-permission: "<red>You do not have permission to view the leaderboard.</red>"
   sent: "<green>Leaderboard sent to Discord!</green>"
   disabled: "<red>Discord leaderboard is not enabled in config.</red>"
+grace-period:
+  started: "<green>Grace period has started! All players are immune for <duration>.</green>"
+  ended: "<red>Grace period has been ended!</red>"
+  active: "<green>Grace period active! Time remaining: <time> seconds.</green>"
+  inactive: "<red>Grace period is not active.</red>"
+  cannot-attack: "<red>This player is in grace period!</red>"
+  cannot-attack-self: "<red>You are in grace period and cannot attack!</red>"

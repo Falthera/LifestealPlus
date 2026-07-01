@@ -75,6 +75,9 @@ public class LifestealConfigImpl implements LifestealConfig {
     @Override public boolean isCombatLogEnabled() { return config.getBoolean("combat-log.enabled", true); }
     @Override public long getCombatLogDurationSeconds() { return config.getLong("combat-log.duration-seconds", 30); }
     @Override public boolean isTrustEnabled() { return config.getBoolean("trust.enabled", true); }
+    @Override public boolean isGracePeriodEnabled() { return config.getBoolean("grace-period.enabled", true); }
+    @Override public long getGracePeriodDurationSeconds() { return config.getLong("grace-period.duration-seconds", 1800); }
+    @Override @NotNull public String getGracePeriodBossBarTitle() { return config.getString("grace-period.bossbar-title", "<red>Grace Period: <time>"); }
     
     @NotNull
     public String getMessage(@NotNull String key, @NotNull String def) {

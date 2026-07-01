@@ -20,6 +20,10 @@ commands:
     description: Manage trusted players
     usage: /<command> <player>
     aliases: [untrust, trusts]
+  graceperiod:
+    description: Manage the server grace period
+    usage: /<command> <start|end|status>
+    aliases: [gp]
 
 permissions:
   lifesteal.reload:
@@ -49,6 +53,9 @@ permissions:
   lifesteal.trust:
     description: Allows managing trusted players
     default: true
+  lifesteal.graceperiod:
+    description: Allows managing the grace period
+    default: op
   lifesteal.give:
     description: Give items
     default: op

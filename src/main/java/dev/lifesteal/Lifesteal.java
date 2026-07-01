@@ -10,6 +10,7 @@ import dev.lifesteal.items.ItemManagerImpl;
 import dev.lifesteal.listeners.AntiOpAbuseListener;
 import dev.lifesteal.managers.ArchetypeManagerImpl;
 import dev.lifesteal.managers.CombatManager;
+import dev.lifesteal.managers.GracePeriodManager;
 import dev.lifesteal.managers.LeaderboardManager;
 import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
@@ -29,6 +30,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     private RevivalManagerImpl revivalManager;
     private LeaderboardManager leaderboardManager;
     private CombatManager combatManager;
+    private GracePeriodManager gracePeriodManager;
     private boolean placeholderAPIEnabled = false;
     private boolean vaultEnabled = false;
     private Object vaultEconomy;
@@ -48,8 +50,12 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         this.guiManager = new GUIManagerImpl(this, config);
         this.revivalManager = new RevivalManagerImpl(this, databaseManager, config, heartManager, archetypeManager);
         this.combatManager = new CombatManager(this, databaseManager, config);
+        this.gracePeriodManager = new GracePeriodManager(this, databaseManager, config);
         heartManager.loadAllOnline();
         archetypeManager.loadAllOnline();
+        for (Player online : getServer().getOnlinePlayers()) {
+            gracePeriodManager.loadGracePeriod(online.getUniqueId());
+        }
         this.leaderboardManager = new LeaderboardManager(this, databaseManager, config, archetypeManager);
         if (config.isPlaceholderAPIEnabled() && getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholderAPIEnabled = true;
@@ -78,6 +84,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         pm.registerEvents(new dev.lifesteal.listeners.BanListener(this, heartManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.AntiOpAbuseListener(this, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.CombatListener(this, combatManager, heartManager, config), this);
+        pm.registerEvents(new dev.lifesteal.listeners.GracePeriodListener(this, gracePeriodManager, config), this);
         pm.registerEvents(guiManager, this);
     }
     
@@ -112,6 +119,11 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
             cmd.setExecutor(new LifestealCommand(this));
             cmd.setTabCompleter(new LifestealCommand(this));
         }
+        cmd = getCommand("graceperiod");
+        if (cmd != null) {
+            cmd.setExecutor(new LifestealCommand(this));
+            cmd.setTabCompleter(new LifestealCommand(this));
+        }
     }
     
     @Override
@@ -135,5 +147,6 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     @NotNull @Override public LifestealConfig getLifestealConfig() { return config; }
     public dev.lifesteal.managers.LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
     public CombatManager getCombatManager() { return combatManager; }
+    public GracePeriodManager getGracePeriodManager() { return gracePeriodManager; }
     public DatabaseManager getDatabaseManager() { return databaseManager; }
 }

@@ -6,6 +6,7 @@ import dev.lifesteal.api.ItemManager;
 import dev.lifesteal.api.Lifesteal;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.managers.CombatManager;
+import dev.lifesteal.managers.GracePeriodManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -25,12 +26,14 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     private final LifestealConfig config;
     private final dev.lifesteal.api.ArchetypeManager archetypeManager;
     private final CombatManager combatManager;
+    private final GracePeriodManager gracePeriodManager;
     
     public LifestealCommand(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
         this.config = plugin.getLifestealConfig();
         this.archetypeManager = plugin.getArchetypeManager();
         this.combatManager = plugin.getCombatManager();
+        this.gracePeriodManager = plugin.getGracePeriodManager();
     }
     
     @Override
@@ -67,6 +70,26 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             cmdTrust(sender, args);
+            return true;
+        }
+        if (command.getName().equalsIgnoreCase("graceperiod") || command.getName().equalsIgnoreCase("gp")) {
+            if (args.length == 0) {
+                cmdGracePeriodStatus(sender);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("start")) {
+                cmdGracePeriodStart(sender);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("end")) {
+                cmdGracePeriodEnd(sender);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("status")) {
+                cmdGracePeriodStatus(sender);
+                return true;
+            }
+            sender.sendMessage(Component.text("Usage: /graceperiod <start|end|status>").color(NamedTextColor.RED));
             return true;
         }
         if (args.length == 0) {
@@ -107,7 +130,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                                 "/hearts giverevival <player>", "/hearts revive <player>",
                                 "/hearts archetype <player> <archetype>", "/hearts gui", "/hearts withdraw <amount>",
                                 "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
-                                "/hearts untrust <player>", "/hearts trusts")) {
+                                "/hearts untrust <player>", "/hearts trusts", "/graceperiod start", "/graceperiod end", "/graceperiod status")) {
             sender.sendMessage(Component.text(s).color(NamedTextColor.WHITE));
         }
     }
@@ -298,6 +321,55 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    private void cmdGracePeriodStart(@NotNull CommandSender sender) {
+        if (!sender.hasPermission("lifesteal.graceperiod")) {
+            sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!config.isGracePeriodEnabled()) {
+            sender.sendMessage(Component.text("Grace period is disabled in config.").color(NamedTextColor.RED));
+            return;
+        }
+        for (Player online : plugin.getServer().getOnlinePlayers()) {
+            gracePeriodManager.startGracePeriod(online.getUniqueId());
+        }
+        plugin.getServer().broadcast(Component.text("Grace period has started! All players are immune for " + (config.getGracePeriodDurationSeconds() / 60) + " minutes.").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
+    }
+    
+    private void cmdGracePeriodEnd(@NotNull CommandSender sender) {
+        if (!sender.hasPermission("lifesteal.graceperiod")) {
+            sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!config.isGracePeriodEnabled()) {
+            sender.sendMessage(Component.text("Grace period is disabled in config.").color(NamedTextColor.RED));
+            return;
+        }
+        for (Player online : plugin.getServer().getOnlinePlayers()) {
+            if (gracePeriodManager.isInGracePeriod(online.getUniqueId())) {
+                gracePeriodManager.endGracePeriod(online.getUniqueId());
+            }
+        }
+        plugin.getServer().broadcast(Component.text("Grace period has been ended!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+    }
+    
+    private void cmdGracePeriodStatus(@NotNull CommandSender sender) {
+        if (!config.isGracePeriodEnabled()) {
+            sender.sendMessage(Component.text("Grace period is disabled in config.").color(NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED));
+            return;
+        }
+        if (gracePeriodManager.isInGracePeriod(player.getUniqueId())) {
+            long remaining = gracePeriodManager.getRemainingSeconds(player.getUniqueId());
+            player.sendMessage(Component.text("Grace period active! Time remaining: " + remaining + " seconds.").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
+        } else {
+            player.sendMessage(Component.text("Grace period is not active.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+        }
+    }
+    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("archetype")) {
@@ -313,10 +385,13 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             return List.of();
         }
         if (args.length == 1) {
-            return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts");
+            return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
         }
         if (args[0].equalsIgnoreCase("archetype") && args.length == 2) {
             return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
+        }
+        if (args[0].equalsIgnoreCase("graceperiod") && args.length == 2) {
+            return List.of("start", "end", "status");
         }
         return List.of();
     }

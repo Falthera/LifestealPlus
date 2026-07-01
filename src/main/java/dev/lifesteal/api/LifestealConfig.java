@@ -45,4 +45,7 @@ public interface LifestealConfig {
     boolean isCombatLogEnabled();
     long getCombatLogDurationSeconds();
     boolean isTrustEnabled();
+    boolean isGracePeriodEnabled();
+    long getGracePeriodDurationSeconds();
+    @NotNull String getGracePeriodBossBarTitle();
 }

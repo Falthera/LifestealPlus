@@ -20,6 +20,10 @@ combat-log:
   duration-seconds: 30
 trust:
   enabled: true
+grace-period:
+  enabled: true
+  duration-seconds: 1800
+  bossbar-title: "<red>Grace Period: <time>"
 anti-op-abuse:
   enabled: true
   announce-to: all

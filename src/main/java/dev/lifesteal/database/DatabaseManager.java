@@ -77,12 +77,14 @@ public class DatabaseManager {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS revivals (target_uuid TEXT PRIMARY KEY, revived INTEGER NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_kills (uuid TEXT PRIMARY KEY, kills INTEGER NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_trusts (player_uuid TEXT NOT NULL, trusted_uuid TEXT NOT NULL, PRIMARY KEY(player_uuid, trusted_uuid));");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS grace_period (player_uuid TEXT PRIMARY KEY, end_time BIGINT NOT NULL DEFAULT 0);");
             } else {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_hearts (uuid VARCHAR(36) PRIMARY KEY, hearts INT NOT NULL DEFAULT 10);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_archetypes (uuid VARCHAR(36) PRIMARY KEY, archetype VARCHAR(64) NOT NULL);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS revivals (target_uuid VARCHAR(36) PRIMARY KEY, revived INT NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_kills (uuid VARCHAR(36) PRIMARY KEY, kills INT NOT NULL DEFAULT 0);");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS player_trusts (player_uuid VARCHAR(36) NOT NULL, trusted_uuid VARCHAR(36) NOT NULL, PRIMARY KEY(player_uuid, trusted_uuid));");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS grace_period (player_uuid VARCHAR(36) PRIMARY KEY, end_time BIGINT NOT NULL DEFAULT 0);");
             }
         } catch (SQLException e) {
             ((Plugin) plugin).getLogger().severe("Failed to run migrations: " + e.getMessage());
@@ -253,6 +255,41 @@ public class DatabaseManager {
             ((Plugin) plugin).getLogger().warning("Failed to load trusted list: " + e.getMessage());
         }
         return results;
+    }
+    
+    // --- Grace period methods ---
+    public long loadGracePeriodEnd(@NotNull UUID playerUuid) {
+        String sql = "SELECT end_time FROM grace_period WHERE player_uuid = ?";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getLong("end_time"); }
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to load grace period: " + e.getMessage());
+        }
+        return 0L;
+    }
+    
+    public void saveGracePeriodEnd(@NotNull UUID playerUuid, long endTime) {
+        String sql = storageType.equalsIgnoreCase("sqlite")
+            ? "INSERT OR REPLACE INTO grace_period (player_uuid, end_time) VALUES (?, ?)"
+            : "INSERT INTO grace_period (player_uuid, end_time) VALUES (?, ?) ON DUPLICATE KEY UPDATE end_time = VALUES(end_time)";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            ps.setLong(2, endTime);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to save grace period: " + e.getMessage());
+        }
+    }
+    
+    public void clearGracePeriod(@NotNull UUID playerUuid) {
+        String sql = "DELETE FROM grace_period WHERE player_uuid = ?";
+        try (Connection conn = dataSource.getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            ((Plugin) plugin).getLogger().warning("Failed to clear grace period: " + e.getMessage());
+        }
     }
     
     public DataSource getDataSource() { return dataSource; }

@@ -15,6 +15,7 @@ public interface Lifesteal {
     @NotNull GUIManager getGUIManager();
     @NotNull RevivalManager getRevivalManager();
     @NotNull dev.lifesteal.managers.CombatManager getCombatManager();
+    @NotNull dev.lifesteal.managers.GracePeriodManager getGracePeriodManager();
     @NotNull LifestealConfig getLifestealConfig();
     boolean isPlaceholderAPIHookEnabled();
     boolean isVaultHookEnabled();
