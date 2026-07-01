@@ -4,7 +4,6 @@ import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.api.RevivalManager;
-import dev.lifesteal.archetypes.Archetype;
 import dev.lifesteal.events.ArchetypeSelectEvent;
 import dev.lifesteal.events.HeartCrystalUseEvent;
 import dev.lifesteal.api.ItemManager;
@@ -19,11 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.Duration;
 
 public class PlayerListener implements Listener {
     private final Lifesteal plugin;
@@ -58,23 +53,8 @@ public class PlayerListener implements Listener {
         player.sendTitle(Title.title(
             net.kyori.adventure.text.Component.text("WELCOME TO LIFESTEAL+").color(net.kyori.adventure.text.format.NamedTextColor.RED),
             net.kyori.adventure.text.Component.text("Your destiny awaits...").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW),
-            Duration.ofMillis(500), Duration.ofSeconds(5), Duration.ofMillis(500)));
+            10, 50, 10));
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
-        
-        new BukkitRunnable() {
-            int ticks = 0;
-            @Override
-            public void run() {
-                if (ticks++ > 100 || !player.isOnline()) { cancel(); return; }
-                
-                player.getWorld().spawnParticle(Particle.PORTAL, player.getLocation(), 50, 1, 1, 1, 0.5);
-                player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 20, 0.5, 1, 0.5, 0.1);
-                
-                if (ticks % 5 == 0) {
-                    player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 0.7f, 0.8f);
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 2L);
     }
     
     @EventHandler
@@ -96,12 +76,11 @@ public class PlayerListener implements Listener {
     }
     
     private void playEpicKillVFX(@NotNull Player killer, @NotNull Player victim) {
-        killer.getWorld().spawnParticle(Particle.TOTEM, killer.getLocation(), 100);
-        killer.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, killer.getLocation(), 3, 0.5, 0.5, 0.5, 0);
+        killer.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, killer.getLocation(), 100);
         killer.getWorld().spawnParticle(Particle.FIREWORK, killer.getLocation(), 50);
-        killer.getWorld().spawnParticle(Particle.CRIT_MAGIC, killer.getLocation(), 80);
+        killer.getWorld().spawnParticle(Particle.CRIT, killer.getLocation(), 80);
         
-        killer.getWorld().spawnParticle(Particle.TOTEM, victim.getLocation(), 100);
+        killer.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, victim.getLocation(), 100);
         killer.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, victim.getLocation(), 50);
         
         killer.playSound(killer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0f, 2.0f);
