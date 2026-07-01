@@ -38,7 +38,8 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         heartManager.onPlayerJoin(player);
         if (archetypeManager.needsArchetypeSelection(player)) {
-            player.sendMessage(net.kyori.adventure.text.Component.text("Welcome! Please select an archetype with /lifesteal gui").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+            dev.lifesteal.archetypes.Archetype random = archetypeManager.getRandomArchetype();
+            archetypeManager.setArchetype(player, random);
         }
     }
     
