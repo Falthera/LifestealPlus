@@ -34,9 +34,11 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("archetype")) {
             if (args.length == 0) {
+                // Just show archetype info - no permission needed for self lookup
                 cmdArchetypeInfo(sender);
                 return true;
             }
+            // Setting someone else's archetype requires admin permission
             cmdArchetype(sender, args);
             return true;
         }
