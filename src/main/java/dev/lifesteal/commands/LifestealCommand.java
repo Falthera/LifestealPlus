@@ -206,7 +206,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("archetype")) {
             if (args.length == 1) {
-                return plugin.getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                return ((Plugin) plugin).getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
             }
             if (args.length == 2) {
                 return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
