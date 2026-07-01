@@ -1,6 +1,5 @@
 package dev.lifesteal.archetypes;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,13 +16,7 @@ public class AquaticArchetype implements Listener {
     
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-        if (!isAquatic(player)) return;
-        if (player.isInWater() || player.isInRain()) {
-            if (player.getPotionEffect(PotionEffectType.DOLPHINS_GRACE) == null) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 100, 0, true, false));
-            }
-        }
+        // Effects are applied permanently by ArchetypeManagerImpl.applyArchetypeEffects on join/respawn
     }
     
     private boolean isAquatic(Player player) {

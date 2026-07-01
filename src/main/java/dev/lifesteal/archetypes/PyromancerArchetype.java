@@ -1,6 +1,5 @@
 package dev.lifesteal.archetypes;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,16 +23,12 @@ public class PyromancerArchetype implements Listener {
             || event.getCause() == EntityDamageEvent.DamageCause.FIRE) {
             event.setCancelled(true);
         }
-        if (player.getLocation().getBlock().getType() == Material.LAVA || player.getLocation().getBlock().getType() == Material.LAVA_CAULDRON) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40, 0, true, false));
-        }
+        // Fire resistance is applied permanently by ArchetypeManagerImpl.applyArchetypeEffects on join/respawn
     }
     
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player player)) return;
-        if (!isPyromancer(player)) return;
-        player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 100, 0, true, false));
+        // Effects are applied permanently by ArchetypeManagerImpl.applyArchetypeEffects on join/respawn
     }
     
     private boolean isPyromancer(Player player) {
