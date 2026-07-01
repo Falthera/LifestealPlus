@@ -10,7 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class TraderArchetype implements Listener {
     private final dev.lifesteal.Lifesteal plugin;
@@ -24,19 +26,23 @@ public class TraderArchetype implements Listener {
         if (!(event.getRightClicked() instanceof Villager villager)) return;
         Player player = event.getPlayer();
         if (!isTrader(player)) return;
-        // Hero of the Village effect is applied permanently by ArchetypeManagerImpl.applyArchetypeEffects
+        
+        List<MerchantRecipe> newRecipes = new ArrayList<>();
         for (MerchantRecipe recipe : villager.getRecipes()) {
             if (random.nextDouble() < 0.05) {
                 ItemStack result = recipe.getResult();
                 int amount = result.getAmount();
                 if (random.nextBoolean()) {
-                    result.setAmount(amount + 1);
+                    result = result.asQuantity(Math.max(1, amount + 1));
                 } else {
-                    Material bonus = Material.EMERALD;
-                    result.setAmount(bonus == Material.EMERALD ? 5 : 2);
+                    ItemStack bonus = new ItemStack(Material.EMERALD, Math.max(1, amount + 4));
+                    newRecipes.add(bonus);
                 }
-                villager.setRecipes(new ArrayList<>(villager.getRecipes()));
             }
+            newRecipes.add(recipe);
+        }
+        if (!newRecipes.isEmpty()) {
+            villager.setRecipes(newRecipes);
         }
     }
     

@@ -7,8 +7,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class AssassinArchetype implements Listener {
     private final dev.lifesteal.Lifesteal plugin;
+    private final Map<UUID, Long> lastDamaged = new ConcurrentHashMap<>();
     
     public AssassinArchetype(@NotNull dev.lifesteal.Lifesteal plugin) { this.plugin = plugin; }
     public Listener getListener() { return this; }
@@ -19,12 +24,16 @@ public class AssassinArchetype implements Listener {
         if (!(event.getEntity() instanceof Player target)) return;
         if (!isAssassin(attacker)) return;
         
-        if (target.getLastDamageCause() == null || target.getLastDamageCause().getEntity() == null
-            || !target.getLastDamageCause().getEntity().getUniqueId().equals(attacker.getUniqueId())) {
+        long now = System.currentTimeMillis();
+        Long last = lastDamaged.get(target.getUniqueId());
+        
+        if (last == null || now - last > 10000) {
             double dmg = event.getFinalDamage();
             event.setDamage(dmg + 4.0);
             attacker.getWorld().spawnParticle(Particle.CRIT, target.getLocation(), 20, 0.5, 1.0, 0.5, 0.5);
         }
+        
+        lastDamaged.put(target.getUniqueId(), now);
     }
     
     private boolean isAssassin(Player player) {

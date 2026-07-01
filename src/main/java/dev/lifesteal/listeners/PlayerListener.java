@@ -4,7 +4,6 @@ import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.api.RevivalManager;
-import dev.lifesteal.events.HeartCrystalUseEvent;
 import dev.lifesteal.api.ItemManager;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -12,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -88,24 +88,29 @@ public class PlayerListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
         Player player = event.getPlayer();
-        if (event.getClickedBlock() == null && event.getItem() != null) {
-            if (itemManager.isHeartCrystal(event.getItem())) {
-                event.setCancelled(true);
-                var crystalEvent = new HeartCrystalUseEvent(player, 1);
-                plugin.getServer().getPluginManager().callEvent(crystalEvent);
-                if (!crystalEvent.isCancelled()) {
-                    heartManager.addHearts(player.getUniqueId(), crystalEvent.getAmount());
-                    player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
-                    playHeartCrystalUseVFX(player);
-                }
-            }
+        if (event.getClickedBlock() != null) return;
+        if (event.getItem() == null) return;
+        
+        if (itemManager.isHeartCrystal(event.getItem())) {
+            event.setCancelled(true);
+            int amount = Math.min(event.getItem().getAmount(), 1);
+            double totalHearts = amount * config.getHeartCrystalAmount();
+            heartManager.addHearts(player.getUniqueId(), (int) totalHearts);
+            event.getItem().setAmount(event.getItem().getAmount() - amount);
+            player.sendMessage(net.kyori.adventure.text.Component.text("Gained +" + (int) totalHearts + " heart!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
         }
     }
     
-    private void playHeartCrystalUseVFX(@NotNull Player player) {
-        player.getWorld().spawnParticle(Particle.HEART, player.getLocation(), 50, 0.5, 1, 0.5, 0.1);
-        player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 30, 0.5, 1, 0.5, 0.2);
-        
-        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 2.0f);
+    @EventHandler
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof Player target)) return;
+        if (!itemManager.isRevivalTotem(event.getPlayer().getInventory().getItemInMainHand())) return;
+        var future = plugin.getRevivalManager().revivePlayer(event.getPlayer(), target);
+        future.thenAccept(success -> {
+            if (!success) {
+                event.getPlayer().sendMessage(net.kyori.adventure.text.Component.text("Could not revive this player").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+            }
+        });
     }
 }
