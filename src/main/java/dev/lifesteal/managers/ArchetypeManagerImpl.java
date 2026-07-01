@@ -122,6 +122,43 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
         }
     }
     
+    @Override
+    public void applyArchetypeEffects(@NotNull Player player) {
+        Archetype a = getArchetype(player);
+        if (a == null) return;
+        
+        switch (a.getId()) {
+            case "windwalker" -> {
+                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
+                if (speed == null || speed.getDuration() < 40) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
+                }
+            }
+            case "guardian" -> {
+                var abs = player.getPotionEffect(org.bukkit.potion.PotionEffectType.ABSORPTION);
+                if (abs == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
+                }
+            }
+            case "aquatic" -> {
+                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.CONDUIT_POWER);
+                if (water == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.CONDUIT_POWER, Integer.MAX_VALUE, 0, true, true));
+                }
+            }
+            case "pyromancer" -> {
+                var fire = player.getPotionEffect(org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE);
+                if (fire == null) {
+                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, true, true));
+                }
+            }
+        }
+    }
+    
     public boolean isArchetypeEnabled(String id) { return registeredArchetypes.containsKey(id); }
     public String getArchetypeName(String id) { return registeredArchetypes.getOrDefault(id, new Archetype(id, id, org.bukkit.Material.STONE)).getName(); }
 }

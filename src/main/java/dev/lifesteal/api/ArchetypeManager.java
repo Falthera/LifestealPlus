@@ -24,4 +24,5 @@ public interface ArchetypeManager {
     CompletableFuture<Void> savePlayerData(@NotNull UUID playerId);
     void reload();
     void loadAllOnline();
+    void applyArchetypeEffects(@NotNull Player player);
 }

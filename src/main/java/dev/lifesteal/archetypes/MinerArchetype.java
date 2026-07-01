@@ -18,6 +18,7 @@ public class MinerArchetype implements org.bukkit.event.Listener {
     
     public org.bukkit.event.Listener getListener() { return this; }
     
+    @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isArchetypeActive(player)) return;

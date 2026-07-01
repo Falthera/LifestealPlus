@@ -47,7 +47,9 @@ public class PlayerListener implements Listener {
             playArchetypeSelectionCutscene(player);
             Archetype random = archetypeManager.getRandomArchetype();
             archetypeManager.setArchetype(player, random);
-            player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has been chosen: " + random.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
+            player.sendMessage(Component.text("Your archetype has been chosen: " + random.getName() + "!").color(NamedTextColor.GOLD));
+        } else {
+            archetypeManager.applyArchetypeEffects(player);
         }
     }
     

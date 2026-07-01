@@ -35,8 +35,10 @@ public class WindwalkerArchetype implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (!isWindwalker(event.getPlayer())) return;
-        if (event.getPlayer().getPotionEffect(PotionEffectType.SPEED) == null) {
-            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 0, true, false));
+        var player = event.getPlayer();
+        var speedEffect = player.getPotionEffect(PotionEffectType.SPEED);
+        if (speedEffect == null || speedEffect.getType().getDuration() < 40) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 0, true, false));
         }
     }
     
