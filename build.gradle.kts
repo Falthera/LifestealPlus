@@ -1,6 +1,6 @@
 plugins {
     java
-    id("com.github.jengelman.gradle.plugins.shadow") version "9.0.0-beta.2"
+    id("com.github.jengelman.gradle.plugins.shadow") version "8.1.1"
 }
 
 repositories {
