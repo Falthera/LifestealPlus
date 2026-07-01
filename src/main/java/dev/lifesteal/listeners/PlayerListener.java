@@ -22,6 +22,9 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class PlayerListener implements Listener {
     private final Lifesteal plugin;
     private final HeartManager heartManager;
