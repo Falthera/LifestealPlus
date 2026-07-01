@@ -27,22 +27,16 @@ public class TraderArchetype implements Listener {
         Player player = event.getPlayer();
         if (!isTrader(player)) return;
         
-        List<MerchantRecipe> newRecipes = new ArrayList<>();
         for (MerchantRecipe recipe : villager.getRecipes()) {
             if (random.nextDouble() < 0.05) {
                 ItemStack result = recipe.getResult();
                 int amount = result.getAmount();
                 if (random.nextBoolean()) {
-                    result = result.asQuantity(Math.max(1, amount + 1));
+                    player.getInventory().addItem(result.asQuantity(Math.max(1, amount + 1)));
                 } else {
-                    ItemStack bonus = new ItemStack(Material.EMERALD, Math.max(1, amount + 4));
-                    newRecipes.add(bonus);
+                    player.getInventory().addItem(new ItemStack(Material.EMERALD, Math.max(1, amount + 4)));
                 }
             }
-            newRecipes.add(recipe);
-        }
-        if (!newRecipes.isEmpty()) {
-            villager.setRecipes(newRecipes);
         }
     }
     
