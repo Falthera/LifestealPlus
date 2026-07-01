@@ -30,7 +30,7 @@ tasks.named<Jar>("jar") {
 }
 
 tasks.shadowJar {
-    archiveFileName.set("Lifesteal+.jar")
+    archiveFileName.set("LifestealPlus.jar")
     relocate("com.zaxxer.hikari", "dev.lifesteal.libs.hikari")
 }
 

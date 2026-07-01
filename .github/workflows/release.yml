@@ -100,9 +100,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: Lifesteal+ ${{ steps.version.outputs.version }}
+name: LifestealPlus ${{ steps.version.outputs.version }}
           body: |
-            ## Lifesteal+ ${{ steps.version.outputs.version }}
+            ## LifestealPlus ${{ steps.version.outputs.version }}
             
             ### Build Info
             - **Minecraft:** 1.21.11
@@ -110,14 +110,14 @@ jobs:
             - **Platform:** PaperMC
             
             ### Installation
-            1. Download `Lifesteal+.jar`
+            1. Download `LifestealPlus.jar`
             2. Place in your server's `plugins/` folder
             3. Restart the server
-            4. Edit `plugins/Lifesteal+/config.yml` as needed
+            4. Edit `plugins/LifestealPlus/config.yml` as needed
             
             ### Changes
             See [commit history](https://github.com/${{ github.repository }}/commits/main) for details.
-          files: build/libs/Lifesteal+.jar
+          files: build/libs/LifestealPlus.jar
           draft: false
           prerelease: false
         env:

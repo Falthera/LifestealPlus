@@ -1,13 +1,10 @@
-name: Lifesteal+
-main: dev.lifesteal.Lifesteal
-version: 2.0.0
-api-version: '1.21.11'
-author: Lifesteal+ Authors
+name: LifestealPlus
+author: LifestealPlus Authors
 description: A production-ready Lifesteal plugin for PaperMC
 softdepend: [PlaceholderAPI, Vault]
 commands:
   lifesteal:
-    description: Main Lifesteal+ command
+    description: Main LifestealPlus command
     usage: /<command>
     aliases: [ls, hearts, lifesteal]
 permissions:
