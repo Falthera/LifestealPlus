@@ -90,8 +90,8 @@ public class HeartManagerImpl implements HeartManager {
             int killerHearts = getHearts(killerId);
             if (killerHearts >= maxHearts.get()) return;
             
-            setHearts(victimId, Math.max(0, victimHearts - (int) stealAmount));
-            addHearts(killerId, 1);
+            setHearts(victimId, Math.max(0, victimHearts - (int) stealAmount)).join();
+            addHearts(killerId, 1).join();
             
             Player victimOnline = plugin.getServer().getPlayer(victimId);
             Player killerOnline = plugin.getServer().getPlayer(killerId);
