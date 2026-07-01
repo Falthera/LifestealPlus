@@ -4,6 +4,7 @@ import dev.lifesteal.Lifesteal;
 import dev.lifesteal.api.HeartManager;
 import dev.lifesteal.api.LifestealConfig;
 import dev.lifesteal.database.DatabaseManager;
+import org.bukkit.Bukkit;
 import org.bukkit.BanList;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
