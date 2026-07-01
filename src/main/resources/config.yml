@@ -6,6 +6,8 @@ settings:
   heart-crystal-cooldown-seconds: 0
   withdraw-heart-amount: 1
   ban-reason: "&cYou ran out of hearts!"
+  # Players steal 1 heart from victims when they kill them
+  # Hearts are converted to Heart Crystals via /lifesteal withdraw
   broadcast-death:
     enabled: true
     message: "<red><player> has run out of hearts!"
