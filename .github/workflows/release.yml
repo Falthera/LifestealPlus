@@ -105,7 +105,7 @@ jobs:
             ## Lifesteal+ ${{ steps.version.outputs.version }}
             
             ### Build Info
-            - **Minecraft:** 1.21.1
+            - **Minecraft:** 1.21.11
             - **Java:** 21
             - **Platform:** PaperMC
             
