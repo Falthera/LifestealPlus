@@ -14,6 +14,7 @@ import dev.lifesteal.managers.GracePeriodManager;
 import dev.lifesteal.managers.LeaderboardManager;
 import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
