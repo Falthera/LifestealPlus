@@ -47,21 +47,21 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     private void registerArchetypes() {
         List.of(
             new Archetype("miner", "Miner", List.of("+ Permanent Haste I", "+ Auto-smelts mined ores"), org.bukkit.Material.IRON_PICKAXE,
-                List.of("Haste I", "Auto-smelt ores"), List.of("+ Fortune bonus on ores")),
-            new Archetype("aquatic", "Aquatic", List.of("+ Permanent Conduit Power", "+ Swim speed boost"), org.bukkit.Material.TRIDENT,
-                List.of("Conduit Power", "Water affinity"), List.of("+ Underwater mining speed")),
+                List.of("Haste I", "Auto-smelt ores"), List.of("+ Efficiency III on pickaxes")),
+            new Archetype("aquatic", "Aquatic", List.of("+ Permanent Water Breathing", "+ Respiration III, Aqua Affinity"), org.bukkit.Material.TRIDENT,
+                List.of("Water Breathing", "Dolphin's Grace in water"), List.of("+ No water movement slowdown")),
             new Archetype("pyromancer", "Pyromancer", List.of("+ Permanent Fire Resistance", "+ Immune to fire/lava damage"), org.bukkit.Material.BLAZE_ROD,
-                List.of("Fire Resistance", "Fire immune"), List.of("+ Fire aspect on melee")),
-            new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed I", "+ Fall damage reduced by 80%"), org.bukkit.Material.FEATHER,
-                List.of("Speed I", "Fall reduction"), List.of("+ Feather falling on boots")),
-            new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ First hit deals +4 damage"), org.bukkit.Material.NETHERITE_SWORD,
-                List.of("Speed I", "Opening bonus"), List.of("+ Sneak attack crit chance")),
-            new Archetype("guardian", "Guardian", List.of("+ Permanent Absorption I", "+ 50% reduced knockback"), org.bukkit.Material.SHIELD,
-                List.of("Absorption I", "Knockback resist"), List.of("+ Blocking damage reduction")),
-            new Archetype("vampire", "Vampire", List.of("+ Permanent Speed I", "+ Life steal: heals 12% of damage dealt"), org.bukkit.Material.REDSTONE,
-                List.of("Speed I", "Life steal"), List.of("+ Night vision")),
-            new Archetype("trader", "Trader", List.of("+ Permanent Hero of the Village", "+ 5% chance for double villager trades"), org.bukkit.Material.EMERALD,
-                List.of("Hero of the Village", "Bonus trades"), List.of("+ Villager discount"))
+                List.of("Fire Resistance", "Fire immune"), List.of("+ Fire Aspect I on melee")),
+            new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed I", "+ Feather Falling IV", "+ 80% fall damage reduction"), org.bukkit.Material.FEATHER,
+                List.of("Speed I", "Feather Falling IV", "Fall reduction"), List.of("+ Speed II on landing")),
+            new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ Sharpness III", "+ First hit +2 damage after 10s"), org.bukkit.Material.NETHERITE_SWORD,
+                List.of("Speed I", "Sharpness III", "Opening bonus"), List.of("+ First-hit crit chance")),
+            new Archetype("guardian", "Guardian", List.of("+ Permanent Absorption I", "+ Protection I"), org.bukkit.Material.SHIELD,
+                List.of("Absorption I", "Protection I"), List.of("+ Faster shield raise", "+ Reduced knockback")),
+            new Archetype("vampire", "Vampire", List.of("+ Permanent Speed I", "+ Looting I"), org.bukkit.Material.REDSTONE,
+                List.of("Speed I", "Looting I"), List.of("+ Life steal 12-15%")),
+            new Archetype("trader", "Trader", List.of("+ Permanent Hero of the Village I", "+ Mending I"), org.bukkit.Material.EMERALD,
+                List.of("Hero of the Village I", "Mending I"), List.of("+ Villager discounts", "+ Bonus trades"))
         ).forEach(a -> registeredArchetypes.put(a.getId(), a));
         
         RegisteredListeners();
@@ -128,12 +128,14 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 if (existingArchetype == null) {
                     Archetype random = getRandomArchetype();
                     cache.put(player.getUniqueId(), random);
-                    player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has been chosen: " + random.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Welcome, " + player.getName() + "! Your archetype is: " + random.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
                     player.showTitle(net.kyori.adventure.title.Title.title(
                         net.kyori.adventure.text.Component.text("WELCOME TO LIFESTEAL+").color(net.kyori.adventure.text.format.NamedTextColor.RED),
                         net.kyori.adventure.text.Component.text("Your destiny awaits...").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW),
                         10, 50, 10));
                     player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
+                } else {
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Welcome back, " + player.getName() + " (" + existingArchetype.getName() + ")").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
                 }
                 applyArchetypeEffects(player);
             });
@@ -197,10 +199,10 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 }
             }
             case "aquatic" -> {
-                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.CONDUIT_POWER);
+                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.WATER_BREATHING);
                 if (water == null) {
                     player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.CONDUIT_POWER, Integer.MAX_VALUE, 0, true, false));
+                        org.bukkit.potion.PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false));
                 }
             }
             case "pyromancer" -> {

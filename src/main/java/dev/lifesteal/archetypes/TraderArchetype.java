@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -36,6 +37,34 @@ public class TraderArchetype implements Listener {
                 } else {
                     player.getInventory().addItem(new ItemStack(Material.EMERALD, Math.max(1, amount + 4)));
                 }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onKill(EntityDeathEvent event) {
+        if (!(event.getEntity().getKiller() instanceof Player player)) return;
+        if (!isTrader(player)) return;
+        repairRandomItem(player);
+    }
+    
+    private void repairRandomItem(Player player) {
+        List<ItemStack> damaged = new ArrayList<>();
+        for (ItemStack item : player.getInventory().getArmorContents()) {
+            if (item != null && item.getType() != Material.AIR && item.getDurability() > 0) {
+                damaged.add(item);
+            }
+        }
+        ItemStack main = player.getInventory().getItemInMainHand();
+        if (main.getType() != Material.AIR && main.getDurability() > 0) damaged.add(main);
+        ItemStack off = player.getInventory().getItemInOffHand();
+        if (off.getType() != Material.AIR && off.getDurability() > 0) damaged.add(off);
+        
+        if (!damaged.isEmpty()) {
+            ItemStack toRepair = damaged.get(random.nextInt(damaged.size()));
+            toRepair.setDurability((short) Math.max(0, toRepair.getDurability() - 1));
+            if (toRepair.getDurability() == 0 && toRepair.getType().getMaxDurability() > 0) {
+                toRepair.setDurability((short) toRepair.getType().getMaxDurability());
             }
         }
     }

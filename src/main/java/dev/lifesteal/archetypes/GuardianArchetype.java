@@ -19,6 +19,7 @@ public class GuardianArchetype implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isGuardian(player)) return;
+        event.setDamage(event.getDamage() * 0.96);
         var abs = player.getPotionEffect(PotionEffectType.ABSORPTION);
         if (abs == null || abs.getDuration() < 40) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 120, 0, true, false));
