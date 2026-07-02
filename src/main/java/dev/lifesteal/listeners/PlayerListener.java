@@ -46,6 +46,7 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         heartManager.onPlayerJoin(player);
+        archetypeManager.onPlayerJoin(player);
     }
     
     @EventHandler
@@ -124,6 +125,11 @@ public class PlayerListener implements Listener {
                     player.sendMessage(net.kyori.adventure.text.Component.text("Cooldown! Wait " + remaining + "s").color(net.kyori.adventure.text.format.NamedTextColor.RED));
                     return;
                 }
+            }
+            int currentHearts = (int) Math.floor(heartManager.getHearts(player.getUniqueId()));
+            if (currentHearts >= heartManager.getMaxHearts()) {
+                player.sendMessage(net.kyori.adventure.text.Component.text("You already have max hearts!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+                return;
             }
             int amount = Math.min(event.getItem().getAmount(), 1);
             double totalHearts = amount * config.getHeartCrystalAmount();
