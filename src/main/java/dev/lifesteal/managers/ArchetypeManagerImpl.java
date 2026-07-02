@@ -114,12 +114,12 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     
     @Override
     public CompletableFuture<Void> setArchetype(@NotNull UUID playerId, @NotNull Archetype archetype) {
+        Player online = plugin.getServer().getPlayer(playerId);
+        if (online != null && online.isOnline()) {
+            removeArchetypeEffects(online);
+        }
+        cache.put(playerId, archetype);
         return CompletableFuture.runAsync(() -> {
-            Player online = plugin.getServer().getPlayer(playerId);
-            if (online != null && online.isOnline()) {
-                removeArchetypeEffects(online);
-            }
-            cache.put(playerId, archetype);
             savePlayerData(playerId);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 Player p = plugin.getServer().getPlayer(playerId);
@@ -156,20 +156,18 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 if (archetypeId != null && registeredArchetypes.containsKey(archetypeId)) {
                     existingArchetype = registeredArchetypes.get(archetypeId);
                     cache.put(player.getUniqueId(), existingArchetype);
-                }
-                if (existingArchetype == null) {
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Welcome back, " + player.getName() + " (" + existingArchetype.getName() + ")").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
+                    applyArchetypeEffects(player);
+                } else {
                     Archetype random = getRandomArchetype();
-                    cache.put(player.getUniqueId(), random);
+                    setArchetype(player.getUniqueId(), random);
                     player.sendMessage(net.kyori.adventure.text.Component.text("Welcome, " + player.getName() + "! Your archetype is: " + random.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
                     player.showTitle(net.kyori.adventure.title.Title.title(
                         net.kyori.adventure.text.Component.text("WELCOME TO LIFESTEAL+").color(net.kyori.adventure.text.format.NamedTextColor.RED),
                         net.kyori.adventure.text.Component.text("Your destiny awaits...").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW),
                         10, 50, 10));
                     player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
-                } else {
-                    player.sendMessage(net.kyori.adventure.text.Component.text("Welcome back, " + player.getName() + " (" + existingArchetype.getName() + ")").color(net.kyori.adventure.text.format.NamedTextColor.GOLD));
                 }
-                applyArchetypeEffects(player);
             });
         });
     }
