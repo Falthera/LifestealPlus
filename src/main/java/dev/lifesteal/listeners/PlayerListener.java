@@ -105,9 +105,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) return;
         Player player = event.getPlayer();
-        if (event.getClickedBlock() != null) return;
         if (event.getItem() == null) return;
         
         if (itemManager.isHeartCrystal(event.getItem())) {

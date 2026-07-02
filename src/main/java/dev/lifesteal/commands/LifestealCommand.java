@@ -99,7 +99,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "help" -> sendHelp(sender);
             case "reload" -> cmdReload(sender);
-            case "hearts" -> cmdHearts(sender, new String[0]);
+            case "hearts" -> cmdHearts(sender, Arrays.copyOfRange(args, 1, args.length));
             case "sethearts" -> cmdSetHearts(sender, Arrays.copyOfRange(args, 1, args.length));
             case "giveheart" -> cmdGiveHeart(sender, Arrays.copyOfRange(args, 1, args.length));
             case "giverevival" -> cmdGiveRevival(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -159,7 +159,13 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         if (args.length < 2) { sender.sendMessage(Component.text("Usage: /lifesteal sethearts <player> <amount>").color(NamedTextColor.RED)); return; }
         var target = ((Plugin) plugin).getServer().getOfflinePlayer(args[0]);
         if (target == null || target.getName() == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
-        int amount = Integer.parseInt(args[1]);
+        int amount;
+        try {
+            amount = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(Component.text("Invalid amount").color(NamedTextColor.RED));
+            return;
+        }
         plugin.getHeartManager().setHearts(target.getUniqueId(), amount);
         sender.sendMessage(Component.text("Set " + target.getName() + " hearts to " + amount).color(NamedTextColor.GREEN));
     }
