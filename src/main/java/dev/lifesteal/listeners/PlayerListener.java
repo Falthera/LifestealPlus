@@ -7,6 +7,7 @@ import dev.lifesteal.api.RevivalManager;
 import dev.lifesteal.api.ItemManager;
 import dev.lifesteal.events.HeartCrystalUseEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.BanList;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -59,7 +60,6 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         
         if (plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName()) != null) {
-            event.setCancelled(true);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 player.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
             }, 1L);
