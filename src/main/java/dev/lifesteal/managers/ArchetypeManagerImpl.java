@@ -11,6 +11,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,12 +27,17 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     private final Map<UUID, Archetype> cache = new ConcurrentHashMap<>();
     private final Map<String, Archetype> registeredArchetypes = new LinkedHashMap<>();
     private final List<Listener> listeners = new ArrayList<>();
+    private BukkitTask actionBarTask;
     
     public ArchetypeManagerImpl(@NotNull Lifesteal plugin, @NotNull DatabaseManager database, @NotNull LifestealConfig config) {
         this.plugin = plugin; this.database = database; this.config = config;
         registerArchetypes();
+        startActionBarTask();
+    }
+    
+    private void startActionBarTask() {
         final MiniMessage mini = MiniMessage.miniMessage();
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        actionBarTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player online : Bukkit.getOnlinePlayers()) {
                 Archetype a = getArchetype(online);
                 if (a == null) continue;
@@ -42,6 +50,20 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
                 online.sendActionBar(mini.deserialize(sb.toString()));
             }
         }, 40L, 40L);
+    }
+    
+    private void removeArchetypeEffects(@NotNull Player player) {
+        for (PotionEffectType type : List.of(
+            PotionEffectType.HASTE,
+            PotionEffectType.SPEED,
+            PotionEffectType.ABSORPTION,
+            PotionEffectType.WATER_BREATHING,
+            PotionEffectType.FIRE_RESISTANCE,
+            PotionEffectType.DOLPHINS_GRACE,
+            PotionEffectType.HERO_OF_THE_VILLAGE
+        )) {
+            player.removePotionEffect(type);
+        }
     }
     
     private void registerArchetypes() {
@@ -93,9 +115,19 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     @Override
     public CompletableFuture<Void> setArchetype(@NotNull UUID playerId, @NotNull Archetype archetype) {
         return CompletableFuture.runAsync(() -> {
+            Player online = plugin.getServer().getPlayer(playerId);
+            if (online != null && online.isOnline()) {
+                removeArchetypeEffects(online);
+            }
             cache.put(playerId, archetype);
             savePlayerData(playerId);
-        }, Bukkit.getScheduler().getMainThreadExecutor(plugin));
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Player p = plugin.getServer().getPlayer(playerId);
+                if (p != null && p.isOnline()) {
+                    applyArchetypeEffects(p);
+                }
+            });
+        }, database.getExecutor());
     }
     
     @Override
@@ -162,7 +194,29 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     }
     
     @Override
-    public void reload() { cache.clear(); registeredArchetypes.clear(); registerArchetypes(); }
+    public void reload() {
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            removeArchetypeEffects(online);
+        }
+        if (actionBarTask != null) {
+            actionBarTask.cancel();
+        }
+        cache.clear();
+        registeredArchetypes.clear();
+        registerArchetypes();
+        startActionBarTask();
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                var archetypeId = database.loadArchetype(online.getUniqueId());
+                Bukkit.getScheduler().getMainThreadExecutor(plugin).execute(() -> {
+                    if (archetypeId != null && registeredArchetypes.containsKey(archetypeId)) {
+                        cache.put(online.getUniqueId(), registeredArchetypes.get(archetypeId));
+                        applyArchetypeEffects(online);
+                    }
+                });
+            });
+        }
+    }
     
     @Override
     public void loadAllOnline() {
@@ -176,62 +230,40 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
         Archetype a = getArchetype(player);
         if (a == null) return;
         
+        removeArchetypeEffects(player);
+        
         switch (a.getId()) {
             case "miner" -> {
-                var haste = player.getPotionEffect(org.bukkit.potion.PotionEffectType.HASTE);
-                if (haste == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false));
             }
             case "windwalker" -> {
-                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
-                if (speed == null || speed.getDuration() < 40) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
             }
             case "guardian" -> {
-                var abs = player.getPotionEffect(org.bukkit.potion.PotionEffectType.ABSORPTION);
-                if (abs == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
             }
             case "aquatic" -> {
-                var water = player.getPotionEffect(org.bukkit.potion.PotionEffectType.WATER_BREATHING);
-                if (water == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false));
             }
             case "pyromancer" -> {
-                var fire = player.getPotionEffect(org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE);
-                if (fire == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, true, true));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, true, true));
             }
             case "assassin" -> {
-                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
-                if (speed == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
             }
             case "vampire" -> {
-                var speed = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
-                if (speed == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
             }
             case "trader" -> {
-                var hero = player.getPotionEffect(org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE);
-                if (hero == null) {
-                    player.addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
-                }
+                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
             }
         }
     }

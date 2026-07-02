@@ -24,7 +24,7 @@ public class WindwalkerArchetype implements Listener {
             double damage = event.getFinalDamage();
             event.setDamage(damage * 0.2);
             if (damage > 3.0) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false));
                 Location loc = player.getLocation();
                 player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
             }

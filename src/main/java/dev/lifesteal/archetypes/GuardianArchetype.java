@@ -22,7 +22,7 @@ public class GuardianArchetype implements Listener {
         event.setDamage(event.getDamage() * 0.96);
         var abs = player.getPotionEffect(PotionEffectType.ABSORPTION);
         if (abs == null || abs.getDuration() < 40) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 120, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
         }
     }
     
