@@ -60,9 +60,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         
         if (plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName()) != null) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                player.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
-            }, 1L);
+            player.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
             return;
         }
         
