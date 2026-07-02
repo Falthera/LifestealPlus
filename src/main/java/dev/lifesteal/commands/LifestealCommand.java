@@ -243,11 +243,9 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         }
         if (amount <= 0) { sender.sendMessage(Component.text("Amount must be positive").color(NamedTextColor.RED)); return; }
         int currentHearts = (int) Math.floor(plugin.getHeartManager().getHearts(player));
-        int heartsToWithdraw = Math.min(amount, Math.max(0, currentHearts));
+        int heartsToWithdraw = Math.min(amount, Math.max(0, currentHearts - 1));
         if (heartsToWithdraw <= 0) {
-            sender.sendMessage(Component.text("You have " + currentHearts + " hearts").color(NamedTextColor.RED));
-            return;
-        }
+            sender.sendMessage(Component.text("You have " + currentHearts + " hearts (minimum: 1)").color(NamedTextColor.RED));
             return;
         }
         plugin.getHeartManager().removeHearts(player.getUniqueId(), heartsToWithdraw);
