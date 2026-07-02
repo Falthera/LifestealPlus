@@ -79,3 +79,9 @@ discord-leaderboard:
   interval-ticks: 6000
   top: 10
   title: "Lifesteal+ Top Killers"
+
+database:
+  type: sqlite
+  sqlite:
+    file: lifesteal.db
+  async: true
