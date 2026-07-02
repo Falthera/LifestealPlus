@@ -7,6 +7,7 @@ import dev.lifesteal.archetypes.Archetype;
 import dev.lifesteal.archetypes.*;
 import dev.lifesteal.database.DatabaseManager;
 import dev.lifesteal.events.PlayerArchetypeSelectEvent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -27,18 +28,40 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     public ArchetypeManagerImpl(@NotNull Lifesteal plugin, @NotNull DatabaseManager database, @NotNull LifestealConfig config) {
         this.plugin = plugin; this.database = database; this.config = config;
         registerArchetypes();
+        final MiniMessage mini = MiniMessage.miniMessage();
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                Archetype a = getArchetype(online);
+                if (a == null) continue;
+                StringBuilder sb = new StringBuilder();
+                sb.append("<gold>").append(a.getName()).append("</gold><dark_gray> |</dark_gray> ");
+                for (int i = 0; i < a.getPassives().size(); i++) {
+                    if (i > 0) sb.append("<dark_gray>, </dark_gray>");
+                    sb.append("<green>").append(a.getPassives().get(i)).append("</green>");
+                }
+                online.sendActionBar(mini.deserialize(sb.toString()));
+            }
+        }, 40L, 40L);
     }
     
     private void registerArchetypes() {
         List.of(
-            new Archetype("miner", "Miner", org.bukkit.Material.IRON_PICKAXE),
-            new Archetype("aquatic", "Aquatic", org.bukkit.Material.TRIDENT),
-            new Archetype("pyromancer", "Pyromancer", org.bukkit.Material.BLAZE_ROD),
-            new Archetype("windwalker", "Windwalker", org.bukkit.Material.FEATHER),
-            new Archetype("assassin", "Assassin", org.bukkit.Material.NETHERITE_SWORD),
-            new Archetype("guardian", "Guardian", org.bukkit.Material.SHIELD),
-            new Archetype("vampire", "Vampire", org.bukkit.Material.REDSTONE),
-            new Archetype("trader", "Trader", org.bukkit.Material.EMERALD)
+            new Archetype("miner", "Miner", List.of("+ Permanent Haste I", "+ Auto-smelts mined ores"), org.bukkit.Material.IRON_PICKAXE,
+                List.of("Haste I", "Auto-smelt ores"), List.of("+ Fortune bonus on ores")),
+            new Archetype("aquatic", "Aquatic", List.of("+ Permanent Conduit Power", "+ Swim speed boost"), org.bukkit.Material.TRIDENT,
+                List.of("Conduit Power", "Water affinity"), List.of("+ Underwater mining speed")),
+            new Archetype("pyromancer", "Pyromancer", List.of("+ Permanent Fire Resistance", "+ Immune to fire/lava damage"), org.bukkit.Material.BLAZE_ROD,
+                List.of("Fire Resistance", "Fire immune"), List.of("+ Fire aspect on melee")),
+            new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed I", "+ Fall damage reduced by 80%"), org.bukkit.Material.FEATHER,
+                List.of("Speed I", "Fall reduction"), List.of("+ Feather falling on boots")),
+            new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ First hit deals +4 damage"), org.bukkit.Material.NETHERITE_SWORD,
+                List.of("Speed I", "Opening bonus"), List.of("+ Sneak attack crit chance")),
+            new Archetype("guardian", "Guardian", List.of("+ Permanent Absorption I", "+ 50% reduced knockback"), org.bukkit.Material.SHIELD,
+                List.of("Absorption I", "Knockback resist"), List.of("+ Blocking damage reduction")),
+            new Archetype("vampire", "Vampire", List.of("+ Permanent Speed I", "+ Life steal: heals 12% of damage dealt"), org.bukkit.Material.REDSTONE,
+                List.of("Speed I", "Life steal"), List.of("+ Night vision")),
+            new Archetype("trader", "Trader", List.of("+ Permanent Hero of the Village", "+ 5% chance for double villager trades"), org.bukkit.Material.EMERALD,
+                List.of("Hero of the Village", "Bonus trades"), List.of("+ Villager discount"))
         ).forEach(a -> registeredArchetypes.put(a.getId(), a));
         
         RegisteredListeners();
