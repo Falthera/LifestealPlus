@@ -377,27 +377,76 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (command.getName().equalsIgnoreCase("archetype")) {
+        String name = command.getName().toLowerCase();
+        
+        if (name.equals("archetype")) {
             if (args.length == 1) {
-                return ((Plugin) plugin).getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                return getOnlinePlayers();
             }
             if (args.length == 2) {
                 return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
             }
             return List.of();
         }
-        if (command.getName().equalsIgnoreCase("withdraw")) {
+        
+        if (name.equals("withdraw")) {
             return List.of();
         }
-        if (args.length == 1) {
-            return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
+        
+        if (name.equals("trust") || name.equals("untrust") || name.equals("trusts")) {
+            if (args.length == 1) {
+                List<String> list = new ArrayList<>(getOnlinePlayers());
+                list.addAll(List.of("untrust", "trusts"));
+                return list;
+            }
+            if (args.length == 2 && args[0].equalsIgnoreCase("untrust")) {
+                return getOnlinePlayers();
+            }
+            return List.of();
         }
-        if (args[0].equalsIgnoreCase("archetype") && args.length == 2) {
-            return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
+        
+        if (name.equals("graceperiod") || name.equals("gp")) {
+            if (args.length == 1) {
+                return List.of("start", "end", "status");
+            }
+            return List.of();
         }
-        if (args[0].equalsIgnoreCase("graceperiod") && args.length == 2) {
-            return List.of("start", "end", "status");
+        
+        if (name.equals("hearts") || name.equals("lifesteal") || name.equals("ls")) {
+            if (args.length == 1) {
+                return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
+            }
+            if (args.length == 2) {
+                switch (args[0].toLowerCase()) {
+                    case "archetype":
+                    case "trust":
+                    case "untrust":
+                    case "hearts":
+                    case "sethearts":
+                    case "giveheart":
+                    case "giverevival":
+                    case "revive":
+                        return getOnlinePlayers();
+                    case "graceperiod":
+                    case "gp":
+                        return List.of("start", "end", "status");
+                    default:
+                        return List.of();
+                }
+            }
+            if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("archetype")) {
+                    return plugin.getArchetypeManager().getAllArchetypes().stream().map(a -> a.getId()).collect(Collectors.toList());
+                }
+                return List.of();
+            }
+            return List.of();
         }
+        
         return List.of();
+    }
+    
+    private List<String> getOnlinePlayers() {
+        return ((Plugin) plugin).getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
     }
 }
