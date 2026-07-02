@@ -57,11 +57,23 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+        
+        if (plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName()) != null) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                player.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
+            }, 1L);
+            return;
+        }
+        
         archetypeManager.applyArchetypeEffects(player);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             int hearts = heartManager.getHearts(player.getUniqueId());
-            player.setMaxHealth(Math.max(1.0, hearts * 2.0));
-            player.setHealth(Math.min(hearts * 2.0, player.getMaxHealth()));
+            if (hearts <= 0) {
+                hearts = 1;
+            }
+            player.setMaxHealth(hearts * 2.0);
+            player.setHealth(hearts * 2.0);
         }, 2L);
     }
     
@@ -81,18 +93,13 @@ public class PlayerListener implements Listener {
                 killer.sendMessage(net.kyori.adventure.text.Component.text("You trust " + victim.getName() + ", no heart stolen.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
                 return;
             }
-            heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
-            heartManager.incrementKills(killer.getUniqueId());
-            playEpicKillVFX(killer, victim);
-        } else {
-            int currentHearts = (int) Math.floor(heartManager.getHearts(victim.getUniqueId()));
-            if (currentHearts > 1) {
-                heartManager.removeHearts(victim.getUniqueId(), 1);
-                event.getDrops().add(itemManager.getHeartCrystal(1));
-            } else {
-                event.getDrops().add(itemManager.getHeartCrystal(1));
-            }
-        }
+        heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
+        heartManager.incrementKills(killer.getUniqueId());
+        playEpicKillVFX(killer, victim);
+    } else {
+        heartManager.removeHearts(victim.getUniqueId(), 1);
+        event.getDrops().add(itemManager.getHeartCrystal(1));
+    }
     }
     
     private void playEpicKillVFX(@NotNull Player killer, @NotNull Player victim) {

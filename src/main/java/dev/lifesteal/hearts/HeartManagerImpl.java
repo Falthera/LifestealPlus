@@ -136,7 +136,7 @@ public class HeartManagerImpl implements HeartManager {
     }
     
     private void updateMaxHealth(@NotNull Player player, int hearts) {
-        player.setMaxHealth(hearts * 2.0);
+        player.setMaxHealth(Math.max(1.0, hearts * 2.0));
     }
     
     @Override public boolean hasReachedZeroHearts(@NotNull UUID playerId) { return isDead(playerId); }
