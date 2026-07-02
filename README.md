@@ -2,8 +2,6 @@
 
 Created by **Falthera**.
 
-A production-ready Lifesteal plugin for PaperMC 1.21.x. Lose hearts on death, gain hearts on kill, manage archetypes, and integrate with PlaceholderAPI and Vault.
-
 ## Features
 
 - Heart-based PvP: lose hearts on death, gain hearts on player kills
