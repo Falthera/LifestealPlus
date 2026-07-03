@@ -50,15 +50,15 @@ public class TraderArchetype implements Listener {
     
     private void repairRandomItem(Player player) {
         List<ItemStack> damaged = new ArrayList<>();
-        for (ItemStack item : player.getInventory().getArmorContents()) {
-            if (item != null && item.getType() != Material.AIR && item.getDurability() > 0) {
-                damaged.add(item);
-            }
-        }
         ItemStack main = player.getInventory().getItemInMainHand();
-        if (main.getType() != Material.AIR && main.getDurability() > 0) damaged.add(main);
         ItemStack off = player.getInventory().getItemInOffHand();
-        if (off.getType() != Material.AIR && off.getDurability() > 0) damaged.add(off);
+        ItemStack[] armor = player.getInventory().getArmorContents();
+        
+        if (main != null && main.getType() != Material.AIR && main.getDurability() > 0) damaged.add(main);
+        if (off != null && off.getType() != Material.AIR && off.getDurability() > 0) damaged.add(off);
+        for (ItemStack piece : armor) {
+            if (piece != null && piece.getType() != Material.AIR && piece.getDurability() > 0) damaged.add(piece);
+        }
         
         if (!damaged.isEmpty()) {
             ItemStack toRepair = damaged.get(random.nextInt(damaged.size()));
@@ -66,6 +66,9 @@ public class TraderArchetype implements Listener {
             if (toRepair.getDurability() == 0 && toRepair.getType().getMaxDurability() > 0) {
                 toRepair.setDurability((short) toRepair.getType().getMaxDurability());
             }
+            player.getInventory().setItemInMainHand(main);
+            player.getInventory().setItemInOffHand(off);
+            player.getInventory().setArmorContents(armor);
         }
     }
     

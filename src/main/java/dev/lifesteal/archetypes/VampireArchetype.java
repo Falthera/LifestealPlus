@@ -27,7 +27,7 @@ public class VampireArchetype implements Listener {
         
         double damage = event.getFinalDamage();
         double heal = damage * 0.12 + random.nextDouble(0, 0.03);
-        double maxHealth = attacker.getHealthScale();
+        double maxHealth = attacker.getMaxHealth();
         double newHealth = Math.min(maxHealth, attacker.getHealth() + heal);
         attacker.setHealth(newHealth);
         
@@ -50,8 +50,9 @@ public class VampireArchetype implements Listener {
             event.getDrops().add(drop);
         }
         ItemStack weapon = player.getInventory().getItemInMainHand();
-        if (weapon.getType() != org.bukkit.Material.AIR && !weapon.containsEnchantment(org.bukkit.enchantments.Enchantment.LOOTING)) {
+        if (weapon != null && weapon.getType() != org.bukkit.Material.AIR && !weapon.containsEnchantment(org.bukkit.enchantments.Enchantment.LOOTING)) {
             weapon.addEnchantment(org.bukkit.enchantments.Enchantment.LOOTING, 1);
+            player.getInventory().setItemInMainHand(weapon);
         }
     }
     
