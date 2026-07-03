@@ -87,6 +87,10 @@ public class PlayerListener implements Listener {
         
         Player killer = victim.getKiller();
         if (killer != null) {
+            if (killer.isInvisible()) {
+                obfuscateKillerInDeathMessage(event, killer);
+            }
+            
             if (config.isTrustEnabled() && plugin.getCombatManager().isTrusted(killer.getUniqueId(), victim.getUniqueId())) {
                 killer.sendMessage(net.kyori.adventure.text.Component.text("You trust " + victim.getName() + ", no heart stolen.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
                 return;
@@ -112,6 +116,23 @@ public class PlayerListener implements Listener {
         killer.playSound(killer.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 0.5f);
         victim.playSound(victim.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 0.5f);
         victim.playSound(victim.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
+    }
+    
+    private void obfuscateKillerInDeathMessage(@NotNull PlayerDeathEvent event, @NotNull Player killer) {
+        var deathMessage = event.deathMessage();
+        if (deathMessage == null) return;
+        
+        String killerName = killer.getName();
+        String content = deathMessage.content();
+        int lastIndex = content.lastIndexOf(killerName);
+        if (lastIndex < 0) return;
+        
+        var prefix = net.kyori.adventure.text.Component.text(content.substring(0, lastIndex));
+        var obfuscated = net.kyori.adventure.text.Component.text(killerName)
+            .decorate(net.kyori.adventure.text.format.TextDecoration.OBFUSCATED);
+        var suffix = net.kyori.adventure.text.Component.text(content.substring(lastIndex + killerName.length()));
+        
+        event.deathMessage(prefix.append(obfuscated).append(suffix));
     }
     
     @EventHandler
