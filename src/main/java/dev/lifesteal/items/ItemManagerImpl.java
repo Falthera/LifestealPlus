@@ -20,11 +20,13 @@ public class ItemManagerImpl implements ItemManager {
     private final LifestealConfig config;
     private final NamespacedKey heartCrystalKey;
     private final NamespacedKey revivalTotemKey;
+    private final NamespacedKey tradingHeartKey;
     
     public ItemManagerImpl(@NotNull Lifesteal plugin, @NotNull LifestealConfig config) {
         this.plugin = plugin; this.config = config;
         this.heartCrystalKey = new NamespacedKey(plugin, "heart_crystal");
         this.revivalTotemKey = new NamespacedKey(plugin, "revival_totem");
+        this.tradingHeartKey = new NamespacedKey(plugin, "trading_heart");
     }
     
     @Override
@@ -58,11 +60,16 @@ public class ItemManagerImpl implements ItemManager {
     }
     
     @Override
-    public boolean isHeartCrystal(@NotNull ItemStack item) {
-        if (item.getType() != Material.HEART_OF_THE_SEA) return false;
+    @NotNull
+    public ItemStack getTradingHeart() {
+        ItemStack item = new ItemStack(Material.BOOK, 1);
         var meta = item.getItemMeta();
-        if (meta == null) return false;
-        return meta.getPersistentDataContainer().has(heartCrystalKey, PersistentDataType.BYTE);
+        meta.displayName(Component.text("Trading Heart").color(NamedTextColor.LIGHT_PURPLE));
+        meta.lore(List.of(Component.text("Right-click to reroll your archetype randomly").color(NamedTextColor.GRAY)));
+        meta.getPersistentDataContainer().set(tradingHeartKey, PersistentDataType.BYTE, (byte) 1);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(meta);
+        return item;
     }
     
     @Override
@@ -71,6 +78,22 @@ public class ItemManagerImpl implements ItemManager {
         var meta = item.getItemMeta();
         if (meta == null) return false;
         return meta.getPersistentDataContainer().has(revivalTotemKey, PersistentDataType.BYTE);
+    }
+    
+    @Override
+    public boolean isTradingHeart(@NotNull ItemStack item) {
+        if (item.getType() != Material.BOOK) return false;
+        var meta = item.getItemMeta();
+        if (meta == null) return false;
+        return meta.getPersistentDataContainer().has(tradingHeartKey, PersistentDataType.BYTE);
+    }
+    
+    @Override
+    public boolean isHeartCrystal(@NotNull ItemStack item) {
+        if (item.getType() != Material.HEART_OF_THE_SEA) return false;
+        var meta = item.getItemMeta();
+        if (meta == null) return false;
+        return meta.getPersistentDataContainer().has(heartCrystalKey, PersistentDataType.BYTE);
     }
     
     @Override

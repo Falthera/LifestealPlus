@@ -41,6 +41,16 @@ public class RecipeManagerImpl implements RecipeManager {
         plugin.getServer().addRecipe(revivalTotem);
         recipes.add(revivalTotem);
         recipeKeys.add(reviveKey);
+        
+        NamespacedKey tradingKey = new NamespacedKey(plugin, "trading_heart");
+        ShapedRecipe tradingHeart = new ShapedRecipe(tradingKey, plugin.getItemManager().getTradingHeart());
+        tradingHeart.shape("RGR", "GBG", "RGR");
+        tradingHeart.setIngredient('R', org.bukkit.Material.BLAZE_ROD);
+        tradingHeart.setIngredient('G', org.bukkit.Material.GOLD_BLOCK);
+        tradingHeart.setIngredient('B', org.bukkit.Material.BOOK);
+        plugin.getServer().addRecipe(tradingHeart);
+        recipes.add(tradingHeart);
+        recipeKeys.add(tradingKey);
     }
     
     @Override

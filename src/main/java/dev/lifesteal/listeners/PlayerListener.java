@@ -146,6 +146,14 @@ public class PlayerListener implements Listener {
             player.sendMessage(net.kyori.adventure.text.Component.text("Gained +" + (int) totalHearts + " heart!").color(net.kyori.adventure.text.format.NamedTextColor.RED));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
             if (cooldownMs > 0) heartCrystalCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        } else if (itemManager.isTradingHeart(event.getItem())) {
+            event.setCancelled(true);
+            int amount = Math.min(event.getItem().getAmount(), 1);
+            event.getItem().setAmount(event.getItem().getAmount() - amount);
+            var newArchetype = archetypeManager.getRandomArchetype();
+            archetypeManager.setArchetype(player, newArchetype);
+            player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has been changed to: " + newArchetype.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE));
+            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         }
     }
     
