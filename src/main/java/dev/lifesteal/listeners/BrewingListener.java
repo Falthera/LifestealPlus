@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
@@ -15,12 +16,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public class BrewingListener implements Listener {
-    private static final int INPUT_SLOT = 0;
-    private static final int INGREDIENT_SLOT_START = 1;
-    private static final int INGREDIENT_SLOT_END = 3;
     private static final int BOOSTED_DURATION_TICKS = 9600;
     private static final int VANILLA_STRENGTH_I_DURATION_TICKS = 3600;
     private static final int VANILLA_STRENGTH_I_AMPLIFIER = 0;
+    private static final int VANILLA_STRENGTH_II_AMPLIFIER = 1;
+    private static final int VANILLA_STRENGTH_II_DURATION_TICKS = 1800;
     
     private final Lifesteal plugin;
     
@@ -30,35 +30,58 @@ public class BrewingListener implements Listener {
     
     @EventHandler
     public void onBrew(BrewEvent event) {
-        ItemStack[] contents = event.getContents();
-        if (contents == null || contents.length <= INGREDIENT_SLOT_END) return;
+        BrewerInventory inv = event.getContents();
+        if (inv == null) return;
         
-        ItemStack input = contents[INPUT_SLOT];
-        if (!isVanillaStrengthI(input)) return;
-        if (!hasGlowstoneDustInIngredients(contents)) return;
+        if (!hasVanillaStrengthIInput(inv)) return;
+        if (!hasGlowstoneDustInIngredients(inv)) return;
         
         ItemStack customResult = createStrengthIIPotion();
         
         new BukkitRunnable() {
             @Override
             public void run() {
-                var inv = event.getInventory();
-                if (inv == null) return;
-                
-                for (int i = 0; i < inv.getSize(); i++) {
-                    ItemStack item = inv.getItem(i);
-                    if (item == null || item.getType() == Material.AIR) continue;
-                    if (isPotionBottle(item) && isVanillaStrengthII(item)) {
-                        inv.setItem(i, customResult.clone());
-                    }
-                }
+                replaceVanillaStrengthII(inv, customResult);
             }
         }.runTaskLater(plugin, 1L);
     }
     
-    private boolean hasGlowstoneDustInIngredients(ItemStack[] contents) {
-        for (int i = INGREDIENT_SLOT_START; i <= INGREDIENT_SLOT_END; i++) {
-            if (contents[i] != null && contents[i].getType() == Material.GLOWSTONE_DUST) {
+    private void replaceVanillaStrengthII(BrewerInventory inv, ItemStack customResult) {
+        int size = inv.getSize();
+        for (int i = 0; i < size; i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null || item.getType() == Material.AIR) continue;
+            if (!(item.getItemMeta() instanceof PotionMeta meta)) continue;
+            
+            boolean isStrengthII = false;
+            for (PotionEffect effect : meta.getAllEffects()) {
+                if (effect.getType() == PotionEffectType.STRENGTH
+                        && effect.getAmplifier() == VANILLA_STRENGTH_II_AMPLIFIER
+                        && effect.getDuration() == VANILLA_STRENGTH_II_DURATION_TICKS) {
+                    isStrengthII = true;
+                    break;
+                }
+            }
+            if (isStrengthII) {
+                inv.setItem(i, customResult.clone());
+            }
+        }
+    }
+    
+    private boolean hasVanillaStrengthIInput(BrewerInventory inv) {
+        for (int i = 0; i < Math.min(4, inv.getSize()); i++) {
+            ItemStack item = inv.getItem(i);
+            if (!isVanillaStrengthI(item)) continue;
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean hasGlowstoneDustInIngredients(BrewerInventory inv) {
+        int size = Math.min(4, inv.getSize());
+        for (int i = 0; i < size; i++) {
+            ItemStack item = inv.getItem(i);
+            if (item != null && item.getType() == Material.GLOWSTONE_DUST) {
                 return true;
             }
         }
@@ -68,27 +91,15 @@ public class BrewingListener implements Listener {
     private boolean isVanillaStrengthI(ItemStack item) {
         if (item == null || item.getType() != Material.POTION) return false;
         if (!(item.getItemMeta() instanceof PotionMeta meta)) return false;
-        if (!meta.hasCustomEffect(PotionEffectType.STRENGTH)) return false;
-        PotionEffect effect = meta.getCustomEffect(PotionEffectType.STRENGTH);
-        return effect.getAmplifier() == VANILLA_STRENGTH_I_AMPLIFIER
-            && effect.getDuration() == VANILLA_STRENGTH_I_DURATION_TICKS;
-    }
-    
-    private boolean isVanillaStrengthII(ItemStack item) {
-        if (item == null || item.getType() != Material.POTION) return false;
-        if (!(item.getItemMeta() instanceof PotionMeta meta)) return false;
-        if (!meta.hasCustomEffect(PotionEffectType.STRENGTH)) return false;
-        PotionEffect effect = meta.getCustomEffect(PotionEffectType.STRENGTH);
-        return effect.getAmplifier() == 1
-            && effect.getDuration() == 1800;
-    }
-    
-    private boolean isPotionBottle(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) return false;
-        return switch (item.getType()) {
-            case POTION, SPLASH_POTION, LINGERING_POTION -> true;
-            default -> false;
-        };
+        
+        for (PotionEffect effect : meta.getAllEffects()) {
+            if (effect.getType() == PotionEffectType.STRENGTH
+                    && effect.getAmplifier() == VANILLA_STRENGTH_I_AMPLIFIER
+                    && effect.getDuration() == VANILLA_STRENGTH_I_DURATION_TICKS) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private ItemStack createStrengthIIPotion() {
@@ -97,7 +108,7 @@ public class BrewingListener implements Listener {
         meta.addCustomEffect(new PotionEffect(
             PotionEffectType.STRENGTH,
             BOOSTED_DURATION_TICKS,
-            1,
+            VANILLA_STRENGTH_II_AMPLIFIER,
             true,
             true,
             true

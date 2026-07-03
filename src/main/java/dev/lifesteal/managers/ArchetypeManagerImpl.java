@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
@@ -234,23 +235,23 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
             case "miner" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.DIG_SPEED, 3);
+                applyEnchant(player, org.bukkit.enchantments.Enchantment.EFFICIENCY, 3);
             }
             case "windwalker" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.PROTECTION_FALL, 4);
+                applyEnchant(player, org.bukkit.enchantments.Enchantment.FEATHER_FALLING, 4);
             }
             case "guardian" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.PROTECTION, 1);
             }
             case "aquatic" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false));
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.OXYGEN, 3);
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.WATER_WORKER, 1);
+                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.RESPIRATION, 3);
+                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.AQUA_AFFINITY, 1);
             }
             case "pyromancer" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
@@ -260,12 +261,12 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
             case "assassin" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 3);
+                applyEnchant(player, org.bukkit.enchantments.Enchantment.SHARPNESS, 3);
             }
             case "vampire" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.LOOT_BONUS_MOBS, 1);
+                applyEnchant(player, org.bukkit.enchantments.Enchantment.LOOTING, 1);
             }
             case "trader" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
