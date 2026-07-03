@@ -47,7 +47,7 @@ public class HeartManagerImpl implements HeartManager {
         if (clamped == 0) return handleZeroHearts(playerId);
         return savePlayerData(playerId, true).thenRunAsync(() -> {
             Player player = plugin.getServer().getPlayer(playerId);
-            if (player != null && player.isOnline()) {
+            if (player != null && player.isOnline() && !player.isDead()) {
                 updateMaxHealth(player, clamped);
             }
         }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
@@ -112,7 +112,6 @@ public class HeartManagerImpl implements HeartManager {
                     killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
                 }
                 if (victimOnline != null && victimOnline.isOnline()) {
-                    updatePlayerHealth(victimOnline);
                     plugin.getServer().getPluginManager().callEvent(new PlayerLoseHeartEvent(victimOnline, (int) stealAmount, heartCache.getOrDefault(victimId, defaultHearts.get())));
                     victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
                     if (newVictimHearts <= 0) {
@@ -164,7 +163,7 @@ public class HeartManagerImpl implements HeartManager {
             .thenAcceptAsync(hearts -> {
                 heartCache.put(playerId, hearts);
                 Player player = plugin.getServer().getPlayer(playerId);
-                if (player != null && player.isOnline()) {
+                if (player != null && player.isOnline() && !player.isDead()) {
                     updateMaxHealth(player, hearts);
                     double health = Math.min(hearts * 2.0, player.getMaxHealth());
                     player.setHealth(health);
