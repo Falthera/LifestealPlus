@@ -119,20 +119,22 @@ public class PlayerListener implements Listener {
     }
     
     private void obfuscateKillerInDeathMessage(@NotNull PlayerDeathEvent event, @NotNull Player killer) {
-        var deathMessage = event.deathMessage();
+        net.kyori.adventure.text.Component deathMessage = event.deathMessage();
         if (deathMessage == null) return;
         
         String killerName = killer.getName();
-        String content = deathMessage.content();
-        int lastIndex = content.lastIndexOf(killerName);
+        String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(deathMessage);
+        int lastIndex = serialized.lastIndexOf(killerName);
         if (lastIndex < 0) return;
         
-        var prefix = net.kyori.adventure.text.Component.text(content.substring(0, lastIndex));
-        var obfuscated = net.kyori.adventure.text.Component.text(killerName)
-            .decorate(net.kyori.adventure.text.format.TextDecoration.OBFUSCATED);
-        var suffix = net.kyori.adventure.text.Component.text(content.substring(lastIndex + killerName.length()));
+        String prefix = serialized.substring(0, lastIndex);
+        String obfuscated = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(
+            net.kyori.adventure.text.Component.text(killerName)
+                .decorate(net.kyori.adventure.text.format.TextDecoration.OBFUSCATED)
+        );
+        String suffix = serialized.substring(lastIndex + killerName.length());
         
-        event.deathMessage(prefix.append(obfuscated).append(suffix));
+        event.deathMessage(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(prefix + obfuscated + suffix));
     }
     
     @EventHandler
