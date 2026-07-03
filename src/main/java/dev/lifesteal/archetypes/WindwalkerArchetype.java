@@ -21,13 +21,10 @@ public class WindwalkerArchetype implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isWindwalker(player)) return;
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-            double damage = event.getFinalDamage();
-            event.setDamage(damage * 0.2);
-            if (damage > 3.0) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false));
-                Location loc = player.getLocation();
-                player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
-            }
+            event.setDamage(event.getFinalDamage() * 0.2);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
+            Location loc = player.getLocation();
+            player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
         }
     }
     

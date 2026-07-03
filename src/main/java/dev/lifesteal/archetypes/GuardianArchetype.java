@@ -30,7 +30,7 @@ public class GuardianArchetype implements Listener {
     public void onKnockback(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isGuardian(player)) return;
-        event.getEntity().setVelocity(event.getEntity().getVelocity().multiply(0.5));
+        event.getEntity().setVelocity(event.getEntity().getVelocity().multiply(0.8));
     }
     
     private boolean isGuardian(Player player) {

@@ -25,10 +25,6 @@ public class AquaticArchetype implements Listener {
             if (dolphin == null || dolphin.getDuration() < 40) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, true, false));
             }
-            var speed = player.getPotionEffect(PotionEffectType.SPEED);
-            if (speed == null || speed.getDuration() < 40) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-            }
         }
     }
     

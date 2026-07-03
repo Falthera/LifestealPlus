@@ -27,13 +27,11 @@ public class AssassinArchetype implements Listener {
         long now = System.currentTimeMillis();
         Long last = lastDamaged.get(target.getUniqueId());
         
-        double bonus = 3.0;
         if (last == null || now - last > 10000) {
-            bonus += 2.0;
+            event.setDamage(event.getFinalDamage() + 2.0);
             attacker.getWorld().spawnParticle(Particle.CRIT, target.getLocation(), 20, 0.5, 1.0, 0.5, 0.5);
         }
         
-        event.setDamage(event.getFinalDamage() + bonus);
         lastDamaged.put(target.getUniqueId(), now);
     }
     

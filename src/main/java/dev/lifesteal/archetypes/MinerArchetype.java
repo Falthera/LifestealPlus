@@ -33,9 +33,6 @@ public class MinerArchetype implements org.bukkit.event.Listener {
         else if (type == Material.COPPER_ORE || type == Material.DEEPSLATE_COPPER_ORE) smelted = new ItemStack(Material.COPPER_INGOT, 2);
         else if (type == Material.ANCIENT_DEBRIS) smelted = new ItemStack(Material.NETHERITE_SCRAP, 1);
         else if (type == Material.NETHER_QUARTZ_ORE) smelted = new ItemStack(Material.QUARTZ, 1);
-        else if (type == Material.STONE && tool.getType() == Material.NETHERITE_PICKAXE && tool.containsEnchantment(org.bukkit.enchantments.Enchantment.FORTUNE)) {
-            return;
-        }
         
         if (smelted != null) {
             int fortune = 0;
