@@ -113,7 +113,7 @@ public class HeartManagerImpl implements HeartManager {
                 }
                 if (victimOnline != null && victimOnline.isOnline()) {
                     plugin.getServer().getPluginManager().callEvent(new PlayerLoseHeartEvent(victimOnline, (int) stealAmount, heartCache.getOrDefault(victimId, defaultHearts.get())));
-                    victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 1.0f);
+                    victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.8f, 1.0f);
                     if (newVictimHearts <= 0) {
                         plugin.getServer().getPluginManager().callEvent(new PlayerPermanentDeathEvent(victimOnline, 0));
                         plugin.getServer().getBanList(BanList.Type.NAME).addBan(victimOnline.getName(), config.getBanReason(), null, null);

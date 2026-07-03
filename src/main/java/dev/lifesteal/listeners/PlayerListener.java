@@ -110,7 +110,7 @@ public class PlayerListener implements Listener {
         
         killer.playSound(killer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0f, 2.0f);
         killer.playSound(killer.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 0.5f);
-        victim.playSound(victim.getLocation(), Sound.ENTITY_WITHER_DEATH, 2.0f, 0.5f);
+        victim.playSound(victim.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0f, 0.5f);
         victim.playSound(victim.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
     }
     
