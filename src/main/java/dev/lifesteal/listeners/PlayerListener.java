@@ -147,26 +147,25 @@ public class PlayerListener implements Listener {
         
         String id = archetype.getId();
         switch (id) {
-            case "miner" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.EFFICIENCY, 3, isPickaxe(item.getType()));
+            case "miner" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.EFFICIENCY, 3);
             case "windwalker" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.FEATHER_FALLING, 4);
             case "guardian" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.PROTECTION, 1);
             case "aquatic" -> {
-                boolean applied = applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.RESPIRATION, 3, isHelmet(item.getType()))
-                    || applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.AQUA_AFFINITY, 1, isHelmet(item.getType()));
+                boolean applied = applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.RESPIRATION, 3)
+                    || applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.AQUA_AFFINITY, 1);
                 if (!applied) {
-                    player.sendMessage(net.kyori.adventure.text.Component.text("Hold a helmet to enchant.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+                    player.sendMessage(net.kyori.adventure.text.Component.text("Hold any item to enchant.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
                 }
             }
-            case "pyromancer" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 1, isSwordOrAxe(item.getType()));
-            case "assassin" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.SHARPNESS, 3, isSwordOrAxe(item.getType()));
-            case "vampire" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.LOOTING, 1, isSwordOrAxe(item.getType()));
+            case "pyromancer" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 1);
+            case "assassin" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.SHARPNESS, 3);
+            case "vampire" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.LOOTING, 1);
             case "trader" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.MENDING, 1);
             default -> player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has no enchants to apply.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
         }
     }
     
-    private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level, boolean matches) {
-        if (!matches) return false;
+    private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
         org.bukkit.inventory.ItemStack copy = new org.bukkit.inventory.ItemStack(item.getType(), item.getAmount());
         if (item.hasItemMeta()) {
             org.bukkit.inventory.ItemMeta meta = copy.getItemMeta();
@@ -201,7 +200,7 @@ public class PlayerListener implements Listener {
         boolean changed = false;
         for (int i = 0; i < armor.length; i++) {
             org.bukkit.inventory.ItemStack piece = armor[i];
-            if (piece == null || piece.getType() == org.bukkit.Material.AIR || !isArmor(piece.getType())) continue;
+            if (piece == null || piece.getType() == org.bukkit.Material.AIR) continue;
             hasValid = true;
             if (piece.containsEnchantment(enchant)) continue;
             org.bukkit.inventory.ItemStack fresh = new org.bukkit.inventory.ItemStack(piece.getType(), piece.getAmount());
@@ -234,38 +233,6 @@ public class PlayerListener implements Listener {
             player.sendMessage(net.kyori.adventure.text.Component.text("Armor already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
         }
         return true;
-    }
-    
-    private boolean isPickaxe(org.bukkit.Material mat) {
-        return switch (mat) {
-            case WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE, GOLDEN_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE -> true;
-            default -> false;
-        };
-    }
-    
-    private boolean isSwordOrAxe(org.bukkit.Material mat) {
-        return switch (mat) {
-            case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD,
-                 WOODEN_AXE, STONE_AXE, IRON_AXE, GOLDEN_AXE, DIAMOND_AXE, NETHERITE_AXE -> true;
-            default -> false;
-        };
-    }
-    
-    private boolean isHelmet(org.bukkit.Material mat) {
-        return switch (mat) {
-            case LEATHER_HELMET, CHAINMAIL_HELMET, IRON_HELMET, GOLDEN_HELMET, DIAMOND_HELMET, NETHERITE_HELMET, TURTLE_HELMET -> true;
-            default -> false;
-        };
-    }
-    
-    private boolean isArmor(org.bukkit.Material mat) {
-        return switch (mat) {
-            case LEATHER_HELMET, CHAINMAIL_HELMET, IRON_HELMET, GOLDEN_HELMET, DIAMOND_HELMET, NETHERITE_HELMET, TURTLE_HELMET,
-                 LEATHER_CHESTPLATE, CHAINMAIL_CHESTPLATE, IRON_CHESTPLATE, GOLDEN_CHESTPLATE, DIAMOND_CHESTPLATE, NETHERITE_CHESTPLATE,
-                 LEATHER_LEGGINGS, CHAINMAIL_LEGGINGS, IRON_LEGGINGS, GOLDEN_LEGGINGS, DIAMOND_LEGGINGS, NETHERITE_LEGGINGS,
-                 LEATHER_BOOTS, CHAINMAIL_BOOTS, IRON_BOOTS, GOLDEN_BOOTS, DIAMOND_BOOTS, NETHERITE_BOOTS -> true;
-            default -> false;
-        };
     }
     
     @EventHandler
