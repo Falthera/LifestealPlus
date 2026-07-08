@@ -111,7 +111,6 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                     cmdArchetype(sender, Arrays.copyOfRange(args, 1, args.length));
                 }
             }
-            case "gui" -> cmdGUI(sender);
             case "withdraw" -> cmdWithdraw(sender, Arrays.copyOfRange(args, 1, args.length));
             case "leaderboard" -> cmdLeaderboard(sender, Arrays.copyOfRange(args, 1, args.length));
             case "version" -> cmdVersion(sender);
@@ -128,7 +127,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         for (String s : List.of("/hearts help", "/hearts reload", "/hearts hearts <player>",
                                 "/hearts sethearts <player> <amount>", "/hearts giveheart <player>",
                                 "/hearts giverevival <player>", "/hearts revive <player>",
-                                "/hearts archetype <player> <archetype>", "/hearts gui", "/hearts withdraw <amount>",
+                                 "/hearts archetype <player> <archetype>", "/hearts withdraw <amount>",
                                 "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
                                 "/hearts untrust <player>", "/hearts trusts", "/graceperiod start", "/graceperiod end", "/graceperiod status")) {
             sender.sendMessage(Component.text(s).color(NamedTextColor.WHITE));
@@ -215,12 +214,6 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         if (archetype == null) { sender.sendMessage(Component.text("Archetype not found").color(NamedTextColor.RED)); return; }
         plugin.getArchetypeManager().setArchetype(target, archetype);
         sender.sendMessage(Component.text("Set archetype of " + target.getName() + " to " + archetype.getName()).color(NamedTextColor.GREEN));
-    }
-    
-    private void cmdGUI(@NotNull CommandSender sender) {
-        if (!(sender instanceof Player player)) { sender.sendMessage(Component.text("Only players can use this command").color(NamedTextColor.RED)); return; }
-        if (!player.hasPermission("lifesteal.gui")) { player.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
-        plugin.getGUIManager().openArchetypeSelectionGUI(player);
     }
     
     private void cmdArchetypeInfo(@NotNull CommandSender sender) {
@@ -414,7 +407,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         
         if (name.equals("hearts") || name.equals("lifesteal") || name.equals("ls")) {
             if (args.length == 1) {
-                return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "gui", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
+                return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
             }
             if (args.length == 2) {
                 switch (args[0].toLowerCase()) {
