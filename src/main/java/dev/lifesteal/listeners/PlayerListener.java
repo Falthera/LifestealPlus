@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -137,8 +138,7 @@ public class PlayerListener implements Listener {
         event.deathMessage(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(prefix + obfuscated + suffix));
     }
     
-    private void applyArchetypeEnchant(@NotNull org.bukkit.event.player.PlayerInteractEvent event, @NotNull Player player, @NotNull dev.lifesteal.archetypes.Archetype archetype) {
-        event.setCancelled(true);
+    private void applyArchetypeEnchant(@NotNull Player player, @NotNull dev.lifesteal.archetypes.Archetype archetype) {
         org.bukkit.inventory.ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == org.bukkit.Material.AIR) {
             player.sendMessage(net.kyori.adventure.text.Component.text("Hold an item to enchant.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
@@ -284,11 +284,6 @@ public class PlayerListener implements Listener {
             archetypeManager.setArchetype(player, newArchetype);
             player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has been changed to: " + newArchetype.getName() + "!").color(net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-        } else if (player.isSneaking()) {
-            var archetype = archetypeManager.getArchetype(player);
-            if (archetype != null) {
-                applyArchetypeEnchant(event, player, archetype);
-            }
         }
     }
     
@@ -303,5 +298,14 @@ public class PlayerListener implements Listener {
                 event.getPlayer().sendMessage(net.kyori.adventure.text.Component.text("Could not revive this player").color(net.kyori.adventure.text.format.NamedTextColor.RED));
             }
         });
+    }
+    
+    @EventHandler
+    public void onToggleSneak(PlayerToggleSneakEvent event) {
+        if (!event.isSneaking()) return;
+        Player player = event.getPlayer();
+        var archetype = archetypeManager.getArchetype(player);
+        if (archetype == null) return;
+        applyArchetypeEnchant(player, archetype);
     }
 }
