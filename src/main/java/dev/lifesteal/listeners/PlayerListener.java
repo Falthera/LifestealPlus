@@ -167,7 +167,18 @@ public class PlayerListener implements Listener {
     
     private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level, boolean matches) {
         if (!matches) return false;
-        org.bukkit.inventory.ItemStack copy = item.clone();
+        org.bukkit.inventory.ItemStack copy = new org.bukkit.inventory.ItemStack(item.getType(), item.getAmount());
+        if (item.hasItemMeta()) {
+            org.bukkit.inventory.ItemMeta meta = copy.getItemMeta();
+            if (meta != null) {
+                for (var entry : item.getEnchantments().entrySet()) {
+                    org.bukkit.enchantments.Enchantment existing = entry.getKey();
+                    if (existing.equals(enchant) || existing.conflictsWith(enchant)) continue;
+                    meta.addEnchant(existing, entry.getValue(), true);
+                }
+                copy.setItemMeta(meta);
+            }
+        }
         if (copy.containsEnchantment(enchant)) {
             player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
             return false;
@@ -188,16 +199,28 @@ public class PlayerListener implements Listener {
         org.bukkit.inventory.ItemStack[] armor = player.getInventory().getArmorContents();
         boolean hasValid = false;
         boolean changed = false;
-        for (org.bukkit.inventory.ItemStack piece : armor) {
-            if (piece != null && piece.getType() != org.bukkit.Material.AIR && isArmor(piece.getType())) {
-                hasValid = true;
-                if (!piece.containsEnchantment(enchant)) {
-                    try {
-                        piece.addEnchantment(enchant, level);
-                        changed = true;
-                    } catch (Exception ignored) {}
+        for (int i = 0; i < armor.length; i++) {
+            org.bukkit.inventory.ItemStack piece = armor[i];
+            if (piece == null || piece.getType() == org.bukkit.Material.AIR || !isArmor(piece.getType())) continue;
+            hasValid = true;
+            if (piece.containsEnchantment(enchant)) continue;
+            org.bukkit.inventory.ItemStack fresh = new org.bukkit.inventory.ItemStack(piece.getType(), piece.getAmount());
+            if (piece.hasItemMeta()) {
+                org.bukkit.inventory.ItemMeta meta = fresh.getItemMeta();
+                if (meta != null) {
+                    for (var entry : piece.getEnchantments().entrySet()) {
+                        org.bukkit.enchantments.Enchantment existing = entry.getKey();
+                        if (existing.equals(enchant) || existing.conflictsWith(enchant)) continue;
+                        meta.addEnchant(existing, entry.getValue(), true);
+                    }
+                    fresh.setItemMeta(meta);
                 }
             }
+            try {
+                fresh.addEnchantment(enchant, level);
+                armor[i] = fresh;
+                changed = true;
+            } catch (Exception ignored) {}
         }
         if (!hasValid) {
             player.sendMessage(net.kyori.adventure.text.Component.text("Wear armor to enchant.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
