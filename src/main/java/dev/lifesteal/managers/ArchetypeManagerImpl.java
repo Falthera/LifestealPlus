@@ -11,7 +11,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
@@ -235,71 +234,36 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
             case "miner" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.HASTE, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.EFFICIENCY, 3);
             }
             case "windwalker" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.FEATHER_FALLING, 4);
             }
             case "guardian" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 0, true, false));
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.PROTECTION, 1);
             }
             case "aquatic" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false));
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.RESPIRATION, 3);
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.AQUA_AFFINITY, 1);
             }
             case "pyromancer" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, true, true));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 1);
             }
             case "assassin" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.SHARPNESS, 3);
             }
             case "vampire" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
-                applyEnchant(player, org.bukkit.enchantments.Enchantment.LOOTING, 1);
             }
             case "trader" -> {
                 player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
-                applyEnchantToArmor(player, org.bukkit.enchantments.Enchantment.MENDING, 1);
             }
         }
-    }
-    
-    private void applyEnchant(@NotNull Player player, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
-        ItemStack main = player.getInventory().getItemInMainHand();
-        if (main != null && main.getType() != org.bukkit.Material.AIR && isValidEnchantTarget(enchant, main)) {
-            main.addEnchantment(enchant, level);
-            player.getInventory().setItemInMainHand(main);
-        }
-    }
-    
-    private void applyEnchantToArmor(@NotNull Player player, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
-        ItemStack[] armor = player.getInventory().getArmorContents();
-        boolean changed = false;
-        for (ItemStack piece : armor) {
-            if (piece != null && piece.getType() != org.bukkit.Material.AIR && isValidEnchantTarget(enchant, piece)) {
-                piece.addEnchantment(enchant, level);
-                changed = true;
-            }
-        }
-        if (changed) {
-            player.getInventory().setArmorContents(armor);
-        }
-    }
-    
-    private boolean isValidEnchantTarget(@NotNull org.bukkit.enchantments.Enchantment enchant, @NotNull ItemStack item) {
-        return enchant.canEnchantItem(item) && !item.containsEnchantment(enchant);
     }
     
     public boolean isArchetypeEnabled(String id) { return registeredArchetypes.containsKey(id); }
