@@ -87,6 +87,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         pm.registerEvents(new dev.lifesteal.listeners.CombatListener(this, combatManager, heartManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.BrewingListener(this), this);
         pm.registerEvents(new dev.lifesteal.listeners.GracePeriodListener(this, gracePeriodManager, config), this);
+        pm.registerEvents(new dev.lifesteal.listeners.GuiCommandBlockerListener(this), this);
         pm.registerEvents(guiManager, this);
     }
     
