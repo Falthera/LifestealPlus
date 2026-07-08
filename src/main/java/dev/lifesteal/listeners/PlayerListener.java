@@ -167,13 +167,14 @@ public class PlayerListener implements Listener {
     
     private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level, boolean matches) {
         if (!matches) return false;
-        if (item.containsEnchantment(enchant)) {
+        org.bukkit.inventory.ItemStack copy = item.clone();
+        if (copy.containsEnchantment(enchant)) {
             player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
             return false;
         }
         try {
-            item.addEnchantment(enchant, level);
-            player.getInventory().setItemInMainHand(item);
+            copy.addEnchantment(enchant, level);
+            player.getInventory().setItemInMainHand(copy);
             player.sendMessage(net.kyori.adventure.text.Component.text("Enchant applied!").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
             return true;
