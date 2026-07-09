@@ -40,6 +40,7 @@ public class PlayerListener implements Listener {
     private static final long DEATH_DEBOUNCE_MILLIS = 500L;
     private long lastDebounceCleanup = 0L;
     private static final long DEBOUNCE_CLEANUP_INTERVAL_MILLIS = 60000L;
+    private final java.util.Set<UUID> processingDeaths = java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
     
     public PlayerListener(@NotNull Lifesteal plugin, @NotNull HeartManager heartManager,
                           @NotNull dev.lifesteal.api.ArchetypeManager archetypeManager,
@@ -60,12 +61,14 @@ public class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         heartManager.onPlayerQuit(event.getPlayer());
         lastDeathTimes.remove(event.getPlayer().getUniqueId());
+        processingDeaths.remove(event.getPlayer().getUniqueId());
     }
     
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         lastDeathTimes.remove(player.getUniqueId());
+        processingDeaths.remove(player.getUniqueId());
         
         if (plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName()) != null) {
             player.kick(net.kyori.adventure.text.Component.text(config.getBanReason()));
@@ -93,37 +96,47 @@ public class PlayerListener implements Listener {
         Player victim = event.getEntity();
         if (!config.isWorldEnabled(victim.getWorld().getName())) return;
         
-        long now = System.currentTimeMillis();
-        if (now - lastDebounceCleanup > DEBOUNCE_CLEANUP_INTERVAL_MILLIS) {
-            cleanupOldDebounces(now);
-            lastDebounceCleanup = now;
-        }
-        
         UUID victimId = victim.getUniqueId();
-        Long lastDeath = lastDeathTimes.get(victimId);
-        if (lastDeath != null && now - lastDeath < DEATH_DEBOUNCE_MILLIS) {
-            plugin.getLogger().warning("[DeathDebounce] Ignored duplicate death event for " + victim.getName() + " within " + DEATH_DEBOUNCE_MILLIS + "ms");
+        
+        if (!processingDeaths.add(victimId)) {
+            plugin.getLogger().warning("[DeathDedup] Ignored duplicate death event for " + victim.getName());
             return;
         }
-        lastDeathTimes.put(victimId, now);
         
-        Player killer = victim.getKiller();
-        if (killer != null) {
-            if (killer.isInvisible()) {
-                obfuscateKillerInDeathMessage(event, killer);
+        try {
+            long now = System.currentTimeMillis();
+            if (now - lastDebounceCleanup > DEBOUNCE_CLEANUP_INTERVAL_MILLIS) {
+                cleanupOldDebounces(now);
+                lastDebounceCleanup = now;
             }
             
-            if (config.isTrustEnabled() && plugin.getCombatManager().isTrusted(killer.getUniqueId(), victim.getUniqueId())) {
-                killer.sendMessage(net.kyori.adventure.text.Component.text("You trust " + victim.getName() + ", no heart stolen.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+            Long lastDeath = lastDeathTimes.get(victimId);
+            if (lastDeath != null && now - lastDeath < DEATH_DEBOUNCE_MILLIS) {
+                plugin.getLogger().warning("[DeathDebounce] Ignored duplicate death event for " + victim.getName() + " within " + DEATH_DEBOUNCE_MILLIS + "ms");
                 return;
             }
-        heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
-        heartManager.incrementKills(killer.getUniqueId());
-        playEpicKillVFX(killer, victim);
-    } else {
-        heartManager.removeHearts(victim.getUniqueId(), 1);
-        event.getDrops().add(itemManager.getHeartCrystal(1));
-    }
+            lastDeathTimes.put(victimId, now);
+            
+            Player killer = victim.getKiller();
+            if (killer != null) {
+                if (killer.isInvisible()) {
+                    obfuscateKillerInDeathMessage(event, killer);
+                }
+                
+                if (config.isTrustEnabled() && plugin.getCombatManager().isTrusted(killer.getUniqueId(), victim.getUniqueId())) {
+                    killer.sendMessage(net.kyori.adventure.text.Component.text("You trust " + victim.getName() + ", no heart stolen.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+                    return;
+                }
+            heartManager.stealHeart(killer.getUniqueId(), victim.getUniqueId());
+            heartManager.incrementKills(killer.getUniqueId());
+            playEpicKillVFX(killer, victim);
+        } else {
+            heartManager.removeHearts(victim.getUniqueId(), 1);
+            event.getDrops().add(itemManager.getHeartCrystal(1));
+        }
+        } finally {
+            processingDeaths.remove(victimId);
+        }
     }
     
     private void cleanupOldDebounces(long now) {
