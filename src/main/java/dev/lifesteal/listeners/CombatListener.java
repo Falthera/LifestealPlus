@@ -36,7 +36,6 @@ public class CombatListener implements Listener {
         if (!(event.getDamager() instanceof Player attacker)) return;
         if (!config.isWorldEnabled(victim.getWorld().getName())) return;
         if (combatManager.isTrusted(attacker.getUniqueId(), victim.getUniqueId())) return;
-        if (combatManager.isTrusted(victim.getUniqueId(), attacker.getUniqueId())) return;
         combatManager.tagPlayer(attacker.getUniqueId());
         combatManager.tagPlayer(victim.getUniqueId());
     }
