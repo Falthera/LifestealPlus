@@ -36,17 +36,19 @@ public class BrewingListener implements Listener {
         if (!hasVanillaStrengthIInput(inv)) return;
         if (!hasGlowstoneDustInIngredients(inv)) return;
         
-        ItemStack customResult = createStrengthIIPotion();
+        ItemStack customDrinkable = createStrengthIIPotion(Material.POTION);
+        ItemStack customSplash = createStrengthIIPotion(Material.SPLASH_POTION);
+        ItemStack customLingering = createStrengthIIPotion(Material.LINGERING_POTION);
         
         new BukkitRunnable() {
             @Override
             public void run() {
-                replaceVanillaStrengthII(inv, customResult);
+                replaceVanillaStrengthII(inv, customDrinkable, customSplash, customLingering);
             }
         }.runTaskLater(plugin, 1L);
     }
     
-    private void replaceVanillaStrengthII(BrewerInventory inv, ItemStack customResult) {
+    private void replaceVanillaStrengthII(BrewerInventory inv, ItemStack customDrinkable, ItemStack customSplash, ItemStack customLingering) {
         int size = inv.getSize();
         for (int i = 0; i < size; i++) {
             ItemStack item = inv.getItem(i);
@@ -62,9 +64,14 @@ public class BrewingListener implements Listener {
                     break;
                 }
             }
-            if (isStrengthII) {
-                inv.setItem(i, customResult.clone());
-            }
+            if (!isStrengthII) continue;
+            
+            ItemStack replacement = switch (item.getType()) {
+                case SPLASH_POTION -> customSplash.clone();
+                case LINGERING_POTION -> customLingering.clone();
+                default -> customDrinkable.clone();
+            };
+            inv.setItem(i, replacement);
         }
     }
     
@@ -89,7 +96,9 @@ public class BrewingListener implements Listener {
     }
     
     private boolean isVanillaStrengthI(ItemStack item) {
-        if (item == null || item.getType() != Material.POTION) return false;
+        if (item == null) return false;
+        Material type = item.getType();
+        if (type != Material.POTION && type != Material.SPLASH_POTION && type != Material.LINGERING_POTION) return false;
         if (!(item.getItemMeta() instanceof PotionMeta meta)) return false;
         
         for (PotionEffect effect : meta.getAllEffects()) {
@@ -102,8 +111,8 @@ public class BrewingListener implements Listener {
         return false;
     }
     
-    private ItemStack createStrengthIIPotion() {
-        ItemStack item = new ItemStack(Material.POTION);
+    private ItemStack createStrengthIIPotion(@NotNull Material material) {
+        ItemStack item = new ItemStack(material);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         meta.addCustomEffect(new PotionEffect(
             PotionEffectType.STRENGTH,
