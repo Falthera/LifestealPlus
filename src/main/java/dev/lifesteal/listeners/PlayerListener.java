@@ -75,15 +75,24 @@ public class PlayerListener implements Listener {
             return;
         }
         
-        archetypeManager.applyArchetypeEffects(player);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline()) return;
+            archetypeManager.applyArchetypeEffects(player);
             int hearts = heartManager.getHearts(player.getUniqueId());
             if (hearts <= 0) {
                 hearts = 1;
             }
             player.setMaxHealth(hearts * 2.0);
             player.setHealth(hearts * 2.0);
-        }, 2L);
+            player.removePotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY);
+            player.removePotionEffect(org.bukkit.potion.PotionEffectType.GLOWING);
+            player.showPlayer(plugin, player);
+            for (Player online : plugin.getServer().getOnlinePlayers()) {
+                if (!online.equals(player)) {
+                    online.showPlayer(plugin, player);
+                }
+            }
+        }, 5L);
     }
     
     @EventHandler

@@ -70,21 +70,32 @@ public class EventManager {
         if (endTask != null) { endTask.cancel(); endTask = null; }
         if (effectTask != null) { effectTask.cancel(); effectTask = null; }
         if (targetRotationTask != null) { targetRotationTask.cancel(); targetRotationTask = null; }
-        String topKiller = null;
+        String winner = null;
         int topKills = 0;
         for (Map.Entry<UUID, Integer> entry : assassinKills.entrySet()) {
             if (entry.getValue() > topKills) {
                 topKills = entry.getValue();
-                topKiller = plugin.getServer().getOfflinePlayer(entry.getKey()).getName();
+                winner = plugin.getServer().getOfflinePlayer(entry.getKey()).getName();
             }
         }
         plugin.getServer().broadcast(Component.text("[Assassin Chase] The event has ended!").color(NamedTextColor.DARK_RED));
-        if (topKiller != null && topKills > 0) {
-            plugin.getServer().broadcast(Component.text("[Assassin Chase] Top assassin: " + topKiller + " with " + topKills + " kills!").color(NamedTextColor.GOLD));
+        if (winner != null && topKills > 0) {
+            Player winnerPlayer = plugin.getServer().getPlayer(winner);
+            plugin.getServer().broadcast(Component.text("[Assassin Chase] WINNER: " + winner + " with " + topKills + " target kills!").color(NamedTextColor.GREEN));
+            plugin.getServer().broadcast(Component.text("[Assassin Chase] " + winner + " has been crowned the ultimate assassin!").color(NamedTextColor.GOLD));
+            if (winnerPlayer != null && winnerPlayer.isOnline()) {
+                winnerPlayer.sendMessage(Component.text("[Assassin Chase] You are the WINNER! Reward: +3 Hearts!").color(NamedTextColor.GREEN));
+                winnerPlayer.playSound(winnerPlayer.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                winnerPlayer.sendTitle(Component.text("ASSASSIN CHASE WINNER"), Component.text("+" + topKills + " kills | +3 Hearts"), 10, 80, 10);
+                plugin.getHeartManager().addHearts(winnerPlayer.getUniqueId(), 3);
+                winnerPlayer.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.NETHERITE_SWORD, 1));
+            }
         }
         for (Player online : plugin.getServer().getOnlinePlayers()) {
             online.removePotionEffect(PotionEffectType.SPEED);
             online.removePotionEffect(PotionEffectType.STRENGTH);
+            online.removePotionEffect(PotionEffectType.INVISIBILITY);
+            online.removePotionEffect(PotionEffectType.GLOWING);
         }
     }
 
@@ -140,6 +151,6 @@ public class EventManager {
     }
 
     private String formatLocation(@NotNull org.bukkit.Location loc) {
-        return "X:" + loc.getBlockX() + " Y:" + loc.getBlockY() + " Z:" + loc.getBlockZ();
+        return loc.getWorld().getName() + " | X:" + loc.getBlockX() + " Y:" + loc.getBlockY() + " Z:" + loc.getBlockZ();
     }
 }
