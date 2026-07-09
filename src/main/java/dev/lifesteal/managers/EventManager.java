@@ -86,9 +86,8 @@ public class EventManager {
             if (winnerPlayer != null && winnerPlayer.isOnline()) {
                 winnerPlayer.sendMessage(Component.text("[Assassin Chase] You are the WINNER! Reward: +3 Hearts!").color(NamedTextColor.GREEN));
                 winnerPlayer.playSound(winnerPlayer.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                winnerPlayer.sendTitle(Component.text("ASSASSIN CHASE WINNER"), Component.text("+" + topKills + " kills | +3 Hearts"), 10, 80, 10);
+                winnerPlayer.sendTitle(Component.text("ASSASSIN CHASE WINNER"), Component.text("+" + topKills + " kills | +3 Hearts"), 10, 80, 10));
                 plugin.getHeartManager().addHearts(winnerPlayer.getUniqueId(), 3);
-                winnerPlayer.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.NETHERITE_SWORD, 1));
             }
         }
         for (Player online : plugin.getServer().getOnlinePlayers()) {
