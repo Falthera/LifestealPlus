@@ -33,9 +33,6 @@ public class BrewingListener implements Listener {
         BrewerInventory inv = event.getContents();
         if (inv == null) return;
         
-        if (!hasVanillaStrengthIInput(inv)) return;
-        if (!hasGlowstoneDustInIngredients(inv)) return;
-        
         ItemStack customDrinkable = createStrengthIIPotion(Material.POTION);
         ItemStack customSplash = createStrengthIIPotion(Material.SPLASH_POTION);
         ItemStack customLingering = createStrengthIIPotion(Material.LINGERING_POTION);
@@ -73,42 +70,6 @@ public class BrewingListener implements Listener {
             };
             inv.setItem(i, replacement);
         }
-    }
-    
-    private boolean hasVanillaStrengthIInput(BrewerInventory inv) {
-        for (int i = 0; i < Math.min(4, inv.getSize()); i++) {
-            ItemStack item = inv.getItem(i);
-            if (!isVanillaStrengthI(item)) continue;
-            return true;
-        }
-        return false;
-    }
-    
-    private boolean hasGlowstoneDustInIngredients(BrewerInventory inv) {
-        int size = Math.min(4, inv.getSize());
-        for (int i = 0; i < size; i++) {
-            ItemStack item = inv.getItem(i);
-            if (item != null && item.getType() == Material.GLOWSTONE_DUST) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    private boolean isVanillaStrengthI(ItemStack item) {
-        if (item == null) return false;
-        Material type = item.getType();
-        if (type != Material.POTION && type != Material.SPLASH_POTION && type != Material.LINGERING_POTION) return false;
-        if (!(item.getItemMeta() instanceof PotionMeta meta)) return false;
-        
-        for (PotionEffect effect : meta.getAllEffects()) {
-            if (effect.getType() == PotionEffectType.STRENGTH
-                    && effect.getAmplifier() == VANILLA_STRENGTH_I_AMPLIFIER
-                    && effect.getDuration() == VANILLA_STRENGTH_I_DURATION_TICKS) {
-                return true;
-            }
-        }
-        return false;
     }
     
     private ItemStack createStrengthIIPotion(@NotNull Material material) {
