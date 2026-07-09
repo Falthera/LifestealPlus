@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.BanList;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -158,44 +159,44 @@ public class PlayerListener implements Listener {
         
         String id = archetype.getId();
         switch (id) {
-            case "miner" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.EFFICIENCY, 3);
-            case "windwalker" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.FEATHER_FALLING, 4);
-            case "guardian" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.PROTECTION, 1);
+            case "miner" -> applyEnchantIfMatch(player, item, Enchantment.EFFICIENCY, 3);
+            case "windwalker" -> applyEnchantToArmorIfMatch(player, Enchantment.FEATHER_FALLING, 4);
+            case "guardian" -> applyEnchantToArmorIfMatch(player, Enchantment.PROTECTION, 1);
             case "aquatic" -> {
-                boolean applied = applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.RESPIRATION, 3)
-                    || applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.AQUA_AFFINITY, 1);
+                boolean applied = applyEnchantIfMatch(player, item, Enchantment.RESPIRATION, 3)
+                    || applyEnchantIfMatch(player, item, Enchantment.AQUA_AFFINITY, 1);
                 if (!applied) {
                     player.sendMessage(net.kyori.adventure.text.Component.text("Hold any item to enchant.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
                 }
             }
-            case "pyromancer" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 1);
-            case "assassin" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.SHARPNESS, 3);
-            case "vampire" -> applyEnchantIfMatch(player, item, org.bukkit.enchantments.Enchantment.LOOTING, 1);
-            case "trader" -> applyEnchantToArmorIfMatch(player, org.bukkit.enchantments.Enchantment.MENDING, 1);
+            case "pyromancer" -> applyEnchantIfMatch(player, item, Enchantment.FIRE_ASPECT, 1);
+            case "assassin" -> applyEnchantIfMatch(player, item, Enchantment.SHARPNESS, 3);
+            case "vampire" -> applyEnchantIfMatch(player, item, Enchantment.LOOTING, 1);
+            case "trader" -> applyEnchantToArmorIfMatch(player, Enchantment.MENDING, 1);
             default -> player.sendMessage(net.kyori.adventure.text.Component.text("Your archetype has no enchants to apply.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
         }
     }
     
-    private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
-        var meta = item.getItemMeta();
-        if (meta == null) {
-            player.sendMessage(net.kyori.adventure.text.Component.text("Could not apply enchant to this item.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
-            return false;
-        }
-        if (item.containsEnchantment(enchant)) {
-            int existingLevel = item.getEnchantmentLevel(enchant);
-            if (existingLevel >= level) {
-                player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
-                return false;
-            }
-            meta.removeEnchant(enchant);
-        }
-        for (var entry : item.getEnchantments().entrySet()) {
-            org.bukkit.enchantments.Enchantment existing = entry.getKey();
-            if (existing.conflictsWith(enchant)) {
-                meta.removeEnchant(existing);
-            }
-        }
+    private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull Enchantment enchant, int level) {
+         var meta = item.getItemMeta();
+         if (meta == null) {
+             player.sendMessage(net.kyori.adventure.text.Component.text("Could not apply enchant to this item.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
+             return false;
+         }
+         if (item.containsEnchantment(enchant)) {
+             int existingLevel = item.getEnchantmentLevel(enchant);
+             if (existingLevel >= level) {
+                 player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+                 return false;
+             }
+             meta.removeEnchant(enchant);
+         }
+         for (var entry : item.getEnchantments().entrySet()) {
+             Enchantment existing = entry.getKey();
+             if (existing.conflictsWith(enchant)) {
+                 meta.removeEnchant(existing);
+             }
+         }
         try {
             meta.addEnchant(enchant, level, true);
             item.setItemMeta(meta);
@@ -209,7 +210,7 @@ public class PlayerListener implements Listener {
         }
     }
     
-    private boolean applyEnchantToArmorIfMatch(@NotNull Player player, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
+    private boolean applyEnchantToArmorIfMatch(@NotNull Player player, @NotNull Enchantment enchant, int level) {
         org.bukkit.inventory.ItemStack[] armor = player.getInventory().getArmorContents();
         boolean hasValid = false;
         boolean changed = false;

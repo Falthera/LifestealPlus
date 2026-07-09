@@ -165,7 +165,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Component.text("Usage: /checkhearts <player>").color(NamedTextColor.RED));
                 return;
             }
-            double hearts = plugin.getHeartManager().getHearts(player);
+            int hearts = (int) plugin.getHeartManager().getHearts(player);
             player.sendMessage(Component.text("You have " + hearts + " hearts.").color(NamedTextColor.GREEN));
             return;
         }
@@ -175,7 +175,8 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         }
         Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
-        sender.sendMessage(Component.text(target.getName() + " has " + plugin.getHeartManager().getHearts(target) + " hearts.").color(NamedTextColor.GREEN));
+        int targetHearts = (int) plugin.getHeartManager().getHearts(target);
+        sender.sendMessage(Component.text(target.getName() + " has " + targetHearts + " hearts.").color(NamedTextColor.GREEN));
     }
     
     private void cmdSetHearts(@NotNull CommandSender sender, String[] args) {
