@@ -22,8 +22,8 @@ public class VampireArchetype implements Listener {
     private final Random random = new Random();
     private static final int BLOOD_FRENZY_WINDOW_TICKS = 240;
     private static final int BLOOD_FRENZY_MAX_STACKS = 5;
-    private static final double BASE_LIFESTEAL = 0.18;
-    private static final double LIFESTEAL_PER_STACK = 0.03;
+    private static final double BASE_LIFESTEAL = 0.15;
+    private static final double LIFESTEAL_PER_STACK = 0.02;
     private static final int DESPERATION_HEALTH_PERCENT = 35;
     private static final int DESPERATION_HEAL_TICKS = 2;
     private static final int DESPERATION_SPEED_TICKS = 100;
@@ -69,7 +69,7 @@ public class VampireArchetype implements Listener {
         int stacks = getBloodStacks(vampire);
         if (stacks <= 0) return;
         
-        int resistanceLevel = Math.min(stacks, 4);
+        int resistanceLevel = Math.min(stacks, 2);
         int speedLevel = Math.min(stacks - 1, 2);
         
         vampire.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, resistanceLevel, true, false));

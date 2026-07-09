@@ -60,7 +60,8 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
             PotionEffectType.WATER_BREATHING,
             PotionEffectType.FIRE_RESISTANCE,
             PotionEffectType.DOLPHINS_GRACE,
-            PotionEffectType.HERO_OF_THE_VILLAGE
+            PotionEffectType.HERO_OF_THE_VILLAGE,
+            PotionEffectType.RESISTANCE
         )) {
             player.removePotionEffect(type);
         }

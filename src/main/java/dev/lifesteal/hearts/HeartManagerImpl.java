@@ -129,6 +129,7 @@ public class HeartManagerImpl implements HeartManager {
                     killerOnline.playSound(killerOnline.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
                 }
                 if (victimOnline != null && victimOnline.isOnline()) {
+                    updatePlayerHealth(victimOnline);
                     plugin.getServer().getPluginManager().callEvent(new PlayerLoseHeartEvent(victimOnline, (int) stealAmount, heartCache.getOrDefault(victimId, defaultHearts.get())));
                     victimOnline.playSound(victimOnline.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.8f, 1.0f);
                     if (newVictimHearts <= 0) {
@@ -169,9 +170,11 @@ public class HeartManagerImpl implements HeartManager {
         loadKills(player.getUniqueId());
     }
     @Override public void onPlayerQuit(@NotNull Player player) { 
-        savePlayerData(player.getUniqueId(), false); 
-        heartCache.remove(player.getUniqueId());
-        killCache.remove(player.getUniqueId());
+        savePlayerData(player.getUniqueId(), true); 
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            heartCache.remove(player.getUniqueId());
+            killCache.remove(player.getUniqueId());
+        }, 1L);
     }
     
     @Override
