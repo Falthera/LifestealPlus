@@ -86,7 +86,6 @@ public class PlayerListener implements Listener {
             player.setHealth(hearts * 2.0);
             player.removePotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY);
             player.removePotionEffect(org.bukkit.potion.PotionEffectType.GLOWING);
-            player.showPlayer(plugin, player);
             for (Player online : plugin.getServer().getOnlinePlayers()) {
                 if (!online.equals(player)) {
                     online.showPlayer(plugin, player);
