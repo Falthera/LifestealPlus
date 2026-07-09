@@ -14,6 +14,7 @@ import dev.lifesteal.managers.GracePeriodManager;
 import dev.lifesteal.managers.LeaderboardManager;
 import dev.lifesteal.managers.RecipeManagerImpl;
 import dev.lifesteal.revivals.RevivalManagerImpl;
+import dev.lifesteal.managers.EventManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     private LeaderboardManager leaderboardManager;
     private CombatManager combatManager;
     private GracePeriodManager gracePeriodManager;
+    private EventManager eventManager;
     private boolean placeholderAPIEnabled = false;
     private boolean vaultEnabled = false;
     private Object vaultEconomy;
@@ -52,6 +54,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         this.revivalManager = new RevivalManagerImpl(this, databaseManager, config, heartManager, archetypeManager);
         this.combatManager = new CombatManager(this, databaseManager, config);
         this.gracePeriodManager = new GracePeriodManager(this, databaseManager, config);
+        this.eventManager = new EventManager(this);
         heartManager.loadAllOnline();
         archetypeManager.loadAllOnline();
         for (Player online : getServer().getOnlinePlayers()) {
@@ -89,6 +92,7 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
         pm.registerEvents(new dev.lifesteal.listeners.GracePeriodListener(this, gracePeriodManager, config), this);
         pm.registerEvents(new dev.lifesteal.listeners.GuiCommandBlockerListener(this), this);
         pm.registerEvents(guiManager, this);
+        pm.registerEvents(new dev.lifesteal.listeners.AssassinChaseListener(this), this);
     }
     
     private void registerCommands() {
@@ -132,6 +136,11 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
             cmd.setExecutor(new LifestealCommand(this));
             cmd.setTabCompleter(new LifestealCommand(this));
         }
+        cmd = getCommand("event");
+        if (cmd != null) {
+            cmd.setExecutor(new LifestealCommand(this));
+            cmd.setTabCompleter(new LifestealCommand(this));
+        }
     }
     
     @Override
@@ -156,5 +165,6 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
     public dev.lifesteal.managers.LeaderboardManager getLeaderboardManager() { return leaderboardManager; }
     public CombatManager getCombatManager() { return combatManager; }
     public GracePeriodManager getGracePeriodManager() { return gracePeriodManager; }
+    public EventManager getEventManager() { return eventManager; }
     public DatabaseManager getDatabaseManager() { return databaseManager; }
 }

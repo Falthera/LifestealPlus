@@ -27,6 +27,9 @@ commands:
   checkhearts:
     description: Check your own or another player's hearts
     usage: /<command> [player]
+  event:
+    description: Manage server events
+    usage: /<command> start <event_name>
 
 permissions:
   lifesteal.reload:
@@ -70,4 +73,7 @@ permissions:
     default: op
   lifesteal.leaderboard:
     description: Send Discord leaderboard
+    default: op
+  lifesteal.event:
+    description: Allows starting and stopping server events
     default: op

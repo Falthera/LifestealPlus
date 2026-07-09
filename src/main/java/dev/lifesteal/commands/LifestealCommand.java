@@ -96,6 +96,10 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             cmdCheckHearts(sender, args);
             return true;
         }
+        if (command.getName().equalsIgnoreCase("event")) {
+            cmdEvent(sender, args);
+            return true;
+        }
         if (args.length == 0) {
             sendHelp(sender);
             return true;
@@ -135,7 +139,8 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                                  "/hearts archetype <player> <archetype>", "/hearts withdraw <amount>",
                                  "/hearts checkhearts", "/hearts checkhearts <player>",
                                  "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
-                                "/hearts untrust <player>", "/hearts trusts", "/graceperiod start", "/graceperiod end", "/graceperiod status")) {
+                                "/hearts untrust <player>", "/hearts trusts", "/graceperiod start", "/graceperiod end", "/graceperiod status",
+                                "/event start <assassin_chase>", "/event stop")) {
             sender.sendMessage(Component.text(s).color(NamedTextColor.WHITE));
         }
     }
@@ -177,6 +182,23 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         int targetHearts = (int) plugin.getHeartManager().getHearts(target);
         sender.sendMessage(Component.text(target.getName() + " has " + targetHearts + " hearts.").color(NamedTextColor.GREEN));
+    }
+    
+    private void cmdEvent(@NotNull CommandSender sender, String[] args) {
+        if (args.length == 0) { sender.sendMessage(Component.text("Usage: /event start <event_name>").color(NamedTextColor.RED)); return; }
+        if (!sender.hasPermission("lifesteal.event")) { sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED)); return; }
+        if (args[0].equalsIgnoreCase("start")) {
+            if (args.length < 2) { sender.sendMessage(Component.text("Usage: /event start <event_name>").color(NamedTextColor.RED)); return; }
+            String eventName = args[1].toLowerCase();
+            if (eventName.equals("assasian_chase") || eventName.equals("assassin_chase")) {
+                ((dev.lifesteal.Lifesteal) plugin).getEventManager().startAssassinChase(sender);
+            } else {
+                sender.sendMessage(Component.text("Unknown event: " + eventName).color(NamedTextColor.RED));
+            }
+        } else if (args[0].equalsIgnoreCase("stop")) {
+            ((dev.lifesteal.Lifesteal) plugin).getEventManager().stopAssassinChase();
+            sender.sendMessage(Component.text("Assassin Chase event stopped.").color(NamedTextColor.GREEN));
+        }
     }
     
     private void cmdSetHearts(@NotNull CommandSender sender, String[] args) {
@@ -427,6 +449,16 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         if (name.equals("graceperiod") || name.equals("gp")) {
             if (args.length == 1) {
                 return List.of("start", "end", "status");
+            }
+            return List.of();
+        }
+        
+        if (name.equals("event")) {
+            if (args.length == 1) {
+                return List.of("start", "stop");
+            }
+            if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
+                return List.of("assassin_chase");
             }
             return List.of();
         }
