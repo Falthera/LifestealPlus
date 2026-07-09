@@ -166,33 +166,29 @@ public class PlayerListener implements Listener {
     }
     
     private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
-        org.bukkit.inventory.ItemStack copy = new org.bukkit.inventory.ItemStack(item.getType(), item.getAmount());
-        if (item.hasItemMeta()) {
-            var meta = copy.getItemMeta();
-            if (meta != null) {
-                for (var entry : item.getEnchantments().entrySet()) {
-                    org.bukkit.enchantments.Enchantment existing = entry.getKey();
-                    int existingLevel = entry.getValue();
-                    if (existing.conflictsWith(enchant)) continue;
-                    if (existing.equals(enchant)) {
-                        if (existingLevel >= level) {
-                            player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
-                            return false;
-                        }
-                        continue;
-                    }
-                    meta.addEnchant(existing, existingLevel, true);
-                }
-                copy.setItemMeta(meta);
-            }
-        }
-        if (copy.containsEnchantment(enchant)) {
-            player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+        var meta = item.getItemMeta();
+        if (meta == null) {
+            player.sendMessage(net.kyori.adventure.text.Component.text("Could not apply enchant to this item.").color(net.kyori.adventure.text.format.NamedTextColor.RED));
             return false;
         }
+        if (item.containsEnchantment(enchant)) {
+            int existingLevel = item.getEnchantmentLevel(enchant);
+            if (existingLevel >= level) {
+                player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+                return false;
+            }
+            meta.removeEnchant(enchant);
+        }
+        for (var entry : item.getEnchantments().entrySet()) {
+            org.bukkit.enchantments.Enchantment existing = entry.getKey();
+            if (existing.conflictsWith(enchant)) {
+                meta.removeEnchant(existing);
+            }
+        }
         try {
-            copy.addEnchantment(enchant, level);
-            player.getInventory().setItemInMainHand(copy);
+            meta.addEnchant(enchant, level, true);
+            item.setItemMeta(meta);
+            player.getInventory().setItemInMainHand(item);
             player.sendMessage(net.kyori.adventure.text.Component.text("Enchant applied!").color(net.kyori.adventure.text.format.NamedTextColor.GREEN));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
             return true;
@@ -211,21 +207,18 @@ public class PlayerListener implements Listener {
             if (piece == null || piece.getType() == org.bukkit.Material.AIR) continue;
             hasValid = true;
             if (piece.containsEnchantment(enchant)) continue;
-            org.bukkit.inventory.ItemStack fresh = new org.bukkit.inventory.ItemStack(piece.getType(), piece.getAmount());
-            if (piece.hasItemMeta()) {
-                var meta = fresh.getItemMeta();
-                if (meta != null) {
-                    for (var entry : piece.getEnchantments().entrySet()) {
-                        org.bukkit.enchantments.Enchantment existing = entry.getKey();
-                        if (existing.equals(enchant) || existing.conflictsWith(enchant)) continue;
-                        meta.addEnchant(existing, entry.getValue(), true);
-                    }
-                    fresh.setItemMeta(meta);
+            var meta = piece.getItemMeta();
+            if (meta == null) continue;
+            for (var entry : piece.getEnchantments().entrySet()) {
+                org.bukkit.enchantments.Enchantment existing = entry.getKey();
+                if (existing.conflictsWith(enchant)) {
+                    meta.removeEnchant(existing);
                 }
             }
             try {
-                fresh.addEnchantment(enchant, level);
-                armor[i] = fresh;
+                meta.addEnchant(enchant, level, true);
+                piece.setItemMeta(meta);
+                armor[i] = piece;
                 changed = true;
             } catch (Exception ignored) {}
         }
