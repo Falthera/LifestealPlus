@@ -73,7 +73,7 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
             new Archetype("aquatic", "Aquatic", List.of("+ Permanent Water Breathing", "+ Conduit + Speed in water", "+ Bonus melee damage in water"), org.bukkit.Material.TRIDENT,
                 List.of("Water Breathing", "Conduit Power", "Water Speed"), List.of("+ Dolphin's Grace", "+ No drowning")),
             new Archetype("pyromancer", "Pyromancer", List.of("+ Permanent Fire Resistance", "+ Immune to fire/lava", "+ Night Vision in lava"), org.bukkit.Material.BLAZE_ROD,
-                List.of("Fire Immune", "Lava Vision", "Lava Traction"), List.of("+ Fire Aspect II on melee")),
+                List.of("Fire Immune", "Lava Night Vision", "Lava Traction"), List.of("+ Fire Aspect II on melee")),
             new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed II", "+ Full fall immunity"), org.bukkit.Material.FEATHER,
                 List.of("Speed II", "No Fall Damage"), List.of("+ Feather Falling")),
             new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ 3dmg opening hit", "+ sneak backstab +6dmg"), org.bukkit.Material.NETHERITE_SWORD,
