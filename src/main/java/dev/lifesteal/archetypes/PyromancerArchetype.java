@@ -34,15 +34,7 @@ public class PyromancerArchetype implements Listener {
         if (!isPyromancer(player)) return;
         
         if (isInLava(player)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0, true, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, true, false));
-            
-            if (event.getFrom().getY() < event.getTo().getY()) {
-                player.setVelocity(player.getVelocity().setY(0.6));
-            }
-            if (event.getFrom().getY() > event.getTo().getY()) {
-                player.setVelocity(player.getVelocity().setY(0.3));
-            }
         }
     }
     

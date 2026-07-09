@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -26,17 +25,6 @@ public class WindwalkerArchetype implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 80, 1, true, false));
             Location loc = player.getLocation();
             player.getWorld().spawnParticle(Particle.CLOUD, loc, 20, 0.5, 0.1, 0.5, 0.1);
-        }
-    }
-    
-    @EventHandler
-    public void onToggleSneak(PlayerToggleSneakEvent event) {
-        if (!event.isSneaking()) return;
-        Player player = event.getPlayer();
-        if (!isWindwalker(player)) return;
-        if (!player.isOnGround()) {
-            player.setVelocity(player.getVelocity().setY(0.8));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 40, 0, true, false));
         }
     }
     
