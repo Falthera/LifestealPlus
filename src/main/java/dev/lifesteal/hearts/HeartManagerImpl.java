@@ -43,7 +43,9 @@ public class HeartManagerImpl implements HeartManager {
     @Override
     public CompletableFuture<Void> setHearts(@NotNull UUID playerId, int amount) {
         int clamped = Math.max(0, Math.min(maxHearts.get(), amount));
+        int old = getHearts(playerId);
         heartCache.put(playerId, clamped);
+        audit(playerId, old, clamped, "setHearts");
         if (clamped == 0) return handleZeroHearts(playerId);
         return savePlayerData(playerId, true).thenRunAsync(() -> {
             Player player = plugin.getServer().getPlayer(playerId);
@@ -53,17 +55,29 @@ public class HeartManagerImpl implements HeartManager {
         }, plugin.getServer().getScheduler().getMainThreadExecutor(plugin));
     }
     
+    private void audit(@NotNull UUID playerId, int oldHearts, int newHearts, @NotNull String source) {
+        if (oldHearts == newHearts) return;
+        String name = plugin.getServer().getOfflinePlayer(playerId).getName();
+        plugin.getLogger().info("[HeartAudit] " + name + " | " + source + " | " + oldHearts + " -> " + newHearts + " | delta=" + (newHearts - oldHearts));
+    }
+    
     @Override
     public CompletableFuture<Void> addHearts(@NotNull UUID playerId, int amount) {
         int current = getHearts(playerId);
-        return setHearts(playerId, Math.min(maxHearts.get(), current + amount));
+        int next = Math.min(maxHearts.get(), current + amount);
+        audit(playerId, current, next, "addHearts");
+        return setHearts(playerId, next);
     }
     
     @Override
     public CompletableFuture<Void> removeHearts(@NotNull UUID playerId, int amount) {
         int current = getHearts(playerId);
         int newAmount = Math.max(0, current - amount);
-        if (newAmount == 0 && current > 0) return handleZeroHearts(playerId);
+        if (newAmount == 0 && current > 0) {
+            audit(playerId, current, 0, "removeHearts->zero");
+            return handleZeroHearts(playerId);
+        }
+        audit(playerId, current, newAmount, "removeHearts");
         return setHearts(playerId, newAmount);
     }
     
@@ -71,6 +85,7 @@ public class HeartManagerImpl implements HeartManager {
         return CompletableFuture.runAsync(() -> {
             int oldHearts = heartCache.getOrDefault(playerId, defaultHearts.get());
             heartCache.put(playerId, 0);
+            audit(playerId, oldHearts, 0, "handleZeroHearts");
             savePlayerData(playerId, true);
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 Player online = plugin.getServer().getPlayer(playerId);
@@ -93,11 +108,13 @@ public class HeartManagerImpl implements HeartManager {
             if (victimHearts <= 0) return;
             
             int newVictimHearts = Math.max(0, victimHearts - (int) stealAmount);
+            audit(victimId, victimHearts, newVictimHearts, "stealHeart(victim)");
             heartCache.put(victimId, newVictimHearts);
             database.saveHearts(victimId, newVictimHearts);
             
             if (killerHearts < maxHearts.get()) {
                 int newKillerHearts = Math.min(maxHearts.get(), killerHearts + (int) stealAmount);
+                audit(killerId, killerHearts, newKillerHearts, "stealHeart(killer)");
                 heartCache.put(killerId, newKillerHearts);
                 database.saveHearts(killerId, newKillerHearts);
             }
