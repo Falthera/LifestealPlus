@@ -1,6 +1,7 @@
 package dev.lifesteal.archetypes;
 
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,9 +35,13 @@ public class PyromancerArchetype implements Listener {
         
         if (isInLava(player)) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, true, false));
             
             if (event.getFrom().getY() < event.getTo().getY()) {
-                player.setVelocity(player.getVelocity().setY(0.4));
+                player.setVelocity(player.getVelocity().setY(0.6));
+            }
+            if (event.getFrom().getY() > event.getTo().getY()) {
+                player.setVelocity(player.getVelocity().setY(0.3));
             }
         }
     }
@@ -45,7 +50,17 @@ public class PyromancerArchetype implements Listener {
     public void onAttack(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player attacker)) return;
         if (!isPyromancer(attacker)) return;
-        event.getEntity().setFireTicks(40);
+        event.getEntity().setFireTicks(80);
+    }
+    
+    @EventHandler
+    public void onTakeDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!isPyromancer(player)) return;
+        if (event.getCause() == EntityDamageEvent.DamageCause.LAVA || event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK
+            || event.getCause() == EntityDamageEvent.DamageCause.FIRE) {
+            event.setCancelled(true);
+        }
     }
     
     private boolean isPyromancer(Player player) {

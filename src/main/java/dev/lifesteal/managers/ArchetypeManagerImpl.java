@@ -68,22 +68,22 @@ public class ArchetypeManagerImpl implements ArchetypeManager {
     
     private void registerArchetypes() {
         List.of(
-            new Archetype("miner", "Miner", List.of("+ Permanent Haste I", "+ Auto-smelts mined ores"), org.bukkit.Material.IRON_PICKAXE,
-                List.of("Haste I", "Auto-smelt ores"), List.of("+ Efficiency III on pickaxes")),
-            new Archetype("aquatic", "Aquatic", List.of("+ Permanent Water Breathing", "+ Respiration III, Aqua Affinity"), org.bukkit.Material.TRIDENT,
-                List.of("Water Breathing", "Dolphin's Grace in water"), List.of("+ No water movement slowdown")),
-            new Archetype("pyromancer", "Pyromancer", List.of("+ Permanent Fire Resistance", "+ Immune to fire/lava damage"), org.bukkit.Material.BLAZE_ROD,
-                List.of("Fire Resistance", "Fire immune"), List.of("+ Fire Aspect I on melee")),
-            new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed I", "+ Feather Falling IV", "+ 80% fall damage reduction"), org.bukkit.Material.FEATHER,
-                List.of("Speed I", "Feather Falling IV", "Fall reduction"), List.of("+ Speed II on landing")),
-            new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ Sharpness III", "+ First hit +2 damage after 10s"), org.bukkit.Material.NETHERITE_SWORD,
-                List.of("Speed I", "Sharpness III", "Opening bonus"), List.of("+ First-hit crit chance")),
-            new Archetype("guardian", "Guardian", List.of("+ Permanent Absorption I", "+ Protection I"), org.bukkit.Material.SHIELD,
-                List.of("Absorption I", "Protection I"), List.of("+ Faster shield raise", "+ Reduced knockback")),
-            new Archetype("vampire", "Vampire", List.of("+ Permanent Speed I", "+ Looting I"), org.bukkit.Material.REDSTONE,
-                List.of("Speed I", "Looting I"), List.of("+ Life steal 12-15%")),
-            new Archetype("trader", "Trader", List.of("+ Permanent Hero of the Village I", "+ Mending I"), org.bukkit.Material.EMERALD,
-                List.of("Hero of the Village I", "Mending I"), List.of("+ Villager discounts", "+ Bonus trades"))
+            new Archetype("miner", "Miner", List.of("+ Permanent Haste II", "+ Auto-smelts ores", "+ 6-block auto-pickup radius"), org.bukkit.Material.IRON_PICKAXE,
+                List.of("Haste II", "Auto-smelt ores", "Auto-pickup"), List.of("+ Efficiency II on pickaxes")),
+            new Archetype("aquatic", "Aquatic", List.of("+ Permanent Water Breathing", "+ Conduit + Speed in water", "+ Bonus melee damage in water"), org.bukkit.Material.TRIDENT,
+                List.of("Water Breathing", "Conduit Power", "Water Speed"), List.of("+ Dolphin's Grace", "+ No drowning")),
+            new Archetype("pyromancer", "Pyromancer", List.of("+ Permanent Fire Resistance", "+ Immune to fire/lava", "+ Night Vision in lava"), org.bukkit.Material.BLAZE_ROD,
+                List.of("Fire Immune", "Lava Vision", "Lava Traction"), List.of("+ Fire Aspect II on melee")),
+            new Archetype("windwalker", "Windwalker", List.of("+ Permanent Speed II", "+ Full fall immunity", "+ sneak-jump glide"), org.bukkit.Material.FEATHER,
+                List.of("Speed II", "No Fall Damage", "Double Jump"), List.of("+ Feather Falling", "+ Glide")),
+            new Archetype("assassin", "Assassin", List.of("+ Permanent Speed I", "+ 3dmg opening hit", "+ sneak backstab +6dmg"), org.bukkit.Material.NETHERITE_SWORD,
+                List.of("Speed I", "Opening crit", "Backstab"), List.of("+ Sneak to vanish (5s/25s)")),
+            new Archetype("guardian", "Guardian", List.of("+ 5% damage reduction", "+ Absorption II ambient", "+ Full knockback immune"), org.bukkit.Material.SHIELD,
+                List.of("Damage Reduction", "Absorption II", "Knockback Immune"), List.of("+ Fire Resistance", "+ Protection I")),
+            new Archetype("vampire", "Vampire", List.of("+ Permanent Speed I", "+ 18% lifesteal", "+ Blood Frenzy scaling 5v1", "+ Desperation heal"), org.bukkit.Material.REDSTONE,
+                List.of("Speed I", "18% lifesteal", "Blood Frenzy"), List.of("+ 1 heart on kill", "+ Outnumbered buffs")),
+            new Archetype("trader", "Trader", List.of("+ Permanent Hero II, Mending II", "+ Full repair on kill", "+ Double villager output"), org.bukkit.Material.EMERALD,
+                List.of("Hero II", "Mending II", "Full Repair"), List.of("+ Emerald drops", "+ Villager trade boost"))
         ).forEach(a -> registeredArchetypes.put(a.getId(), a));
         
         RegisteredListeners();

@@ -1,5 +1,6 @@
 package dev.lifesteal.archetypes;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -29,14 +30,13 @@ public class TraderArchetype implements Listener {
         if (!isTrader(player)) return;
         
         for (MerchantRecipe recipe : villager.getRecipes()) {
-            if (random.nextDouble() < 0.05) {
+            if (random.nextDouble() < 0.15) {
                 ItemStack result = recipe.getResult();
                 int amount = result.getAmount();
-                if (random.nextBoolean()) {
-                    player.getInventory().addItem(result.asQuantity(Math.max(1, amount + 1)));
-                } else {
-                    player.getInventory().addItem(new ItemStack(Material.EMERALD, Math.max(1, amount + 4)));
-                }
+                player.getInventory().addItem(result.asQuantity(Math.max(1, amount * 2)));
+            }
+            if (random.nextDouble() < 0.08) {
+                player.getInventory().addItem(new ItemStack(Material.EMERALD, Math.max(1, random.nextInt(3) + 2)));
             }
         }
     }
@@ -45,27 +45,36 @@ public class TraderArchetype implements Listener {
     public void onKill(EntityDeathEvent event) {
         if (!(event.getEntity().getKiller() instanceof Player player)) return;
         if (!isTrader(player)) return;
-        repairRandomItem(player);
+        repairAllItems(player);
+        if (random.nextDouble() < 0.25) {
+            event.getDrops().add(new ItemStack(Material.EMERALD, random.nextInt(3) + 1));
+        }
     }
     
-    private void repairRandomItem(Player player) {
-        List<ItemStack> damaged = new ArrayList<>();
+    private void repairAllItems(Player player) {
         ItemStack main = player.getInventory().getItemInMainHand();
         ItemStack off = player.getInventory().getItemInOffHand();
         ItemStack[] armor = player.getInventory().getArmorContents();
+        boolean changed = false;
         
-        if (main != null && main.getType() != Material.AIR && main.getDurability() > 0) damaged.add(main);
-        if (off != null && off.getType() != Material.AIR && off.getDurability() > 0) damaged.add(off);
-        for (ItemStack piece : armor) {
-            if (piece != null && piece.getType() != Material.AIR && piece.getDurability() > 0) damaged.add(piece);
+        if (main != null && main.getType() != Material.AIR && main.getDurability() > 0) {
+            main.setDurability((short) 0);
+            changed = true;
+        }
+        if (off != null && off.getType() != Material.AIR && off.getDurability() > 0) {
+            off.setDurability((short) 0);
+            changed = true;
+        }
+        for (int i = 0; i < armor.length; i++) {
+            ItemStack piece = armor[i];
+            if (piece != null && piece.getType() != Material.AIR && piece.getDurability() > 0) {
+                piece.setDurability((short) 0);
+                armor[i] = piece;
+                changed = true;
+            }
         }
         
-        if (!damaged.isEmpty()) {
-            ItemStack toRepair = damaged.get(random.nextInt(damaged.size()));
-            toRepair.setDurability((short) Math.max(0, toRepair.getDurability() - 1));
-            if (toRepair.getDurability() == 0 && toRepair.getType().getMaxDurability() > 0) {
-                toRepair.setDurability((short) toRepair.getType().getMaxDurability());
-            }
+        if (changed) {
             player.getInventory().setItemInMainHand(main);
             player.getInventory().setItemInOffHand(off);
             player.getInventory().setArmorContents(armor);

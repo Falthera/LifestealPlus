@@ -1,16 +1,20 @@
 package dev.lifesteal.archetypes;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class MinerArchetype implements org.bukkit.event.Listener {
     private final dev.lifesteal.Lifesteal plugin;
+    private static final double PICKUP_RADIUS = 6.0;
     
     public MinerArchetype(@NotNull dev.lifesteal.Lifesteal plugin) {
         this.plugin = plugin;
@@ -39,12 +43,26 @@ public class MinerArchetype implements org.bukkit.event.Listener {
             if (tool.containsEnchantment(org.bukkit.enchantments.Enchantment.FORTUNE)) {
                 fortune = tool.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.FORTUNE);
             }
-            int amount = smelted.getAmount() * (fortune > 0 ? (fortune + 1) : 1);
+            int amount = smelted.getAmount() * Math.max(1, fortune + 1);
             smelted.setAmount(amount);
             event.setDropItems(false);
             block.getWorld().dropItemNaturally(block.getLocation(), smelted);
         }
-        // Haste effect is applied permanently by ArchetypeManagerImpl.applyArchetypeEffects
+    }
+    
+    @EventHandler
+    public void onItemPickup(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!isArchetypeActive(player)) return;
+        
+        Location playerLoc = player.getLocation();
+        for (Item item : player.getWorld().getEntitiesByClass(Item.class)) {
+            if (item.getLocation().distance(playerLoc) <= PICKUP_RADIUS) {
+                ItemStack stack = item.getItemStack();
+                player.getInventory().addItem(stack);
+                item.remove();
+            }
+        }
     }
     
     private boolean isArchetypeActive(Player player) {
