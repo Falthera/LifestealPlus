@@ -168,7 +168,7 @@ public class PlayerListener implements Listener {
     private boolean applyEnchantIfMatch(@NotNull Player player, @NotNull org.bukkit.inventory.ItemStack item, @NotNull org.bukkit.enchantments.Enchantment enchant, int level) {
         org.bukkit.inventory.ItemStack copy = new org.bukkit.inventory.ItemStack(item.getType(), item.getAmount());
         if (item.hasItemMeta()) {
-            org.bukkit.inventory.ItemMeta meta = copy.getItemMeta();
+            var meta = copy.getItemMeta();
             if (meta != null) {
                 for (var entry : item.getEnchantments().entrySet()) {
                     org.bukkit.enchantments.Enchantment existing = entry.getKey();
@@ -205,7 +205,7 @@ public class PlayerListener implements Listener {
             if (piece.containsEnchantment(enchant)) continue;
             org.bukkit.inventory.ItemStack fresh = new org.bukkit.inventory.ItemStack(piece.getType(), piece.getAmount());
             if (piece.hasItemMeta()) {
-                org.bukkit.inventory.ItemMeta meta = fresh.getItemMeta();
+                var meta = fresh.getItemMeta();
                 if (meta != null) {
                     for (var entry : piece.getEnchantments().entrySet()) {
                         org.bukkit.enchantments.Enchantment existing = entry.getKey();
