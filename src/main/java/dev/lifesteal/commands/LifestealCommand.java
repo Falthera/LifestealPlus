@@ -92,6 +92,10 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("Usage: /graceperiod <start|end|status>").color(NamedTextColor.RED));
             return true;
         }
+        if (command.getName().equalsIgnoreCase("checkhearts")) {
+            cmdCheckHearts(sender, args);
+            return true;
+        }
         if (args.length == 0) {
             sendHelp(sender);
             return true;
@@ -117,6 +121,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
             case "trust" -> cmdTrust(sender, Arrays.copyOfRange(args, 1, args.length));
             case "untrust" -> cmdUntrust(sender, Arrays.copyOfRange(args, 1, args.length));
             case "trusts" -> cmdTrusts(sender);
+            case "checkhearts" -> cmdCheckHearts(sender, Arrays.copyOfRange(args, 1, args.length));
             default -> sendHelp(sender);
         }
         return true;
@@ -128,7 +133,8 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                                 "/hearts sethearts <player> <amount>", "/hearts giveheart <player>",
                                 "/hearts giverevival <player>", "/hearts revive <player>",
                                  "/hearts archetype <player> <archetype>", "/hearts withdraw <amount>",
-                                "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
+                                 "/hearts checkhearts", "/hearts checkhearts <player>",
+                                 "/hearts leaderboard", "/hearts version", "/hearts trust <player>",
                                 "/hearts untrust <player>", "/hearts trusts", "/graceperiod start", "/graceperiod end", "/graceperiod status")) {
             sender.sendMessage(Component.text(s).color(NamedTextColor.WHITE));
         }
@@ -148,6 +154,25 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
     
     private void cmdHearts(@NotNull CommandSender sender, String[] args) {
         if (args.length < 1) { sender.sendMessage(Component.text("Usage: /lifesteal hearts <player>").color(NamedTextColor.RED)); return; }
+        Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
+        if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
+        sender.sendMessage(Component.text(target.getName() + " has " + plugin.getHeartManager().getHearts(target) + " hearts.").color(NamedTextColor.GREEN));
+    }
+    
+    private void cmdCheckHearts(@NotNull CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(Component.text("Usage: /checkhearts <player>").color(NamedTextColor.RED));
+                return;
+            }
+            double hearts = plugin.getHeartManager().getHearts(player);
+            player.sendMessage(Component.text("You have " + hearts + " hearts.").color(NamedTextColor.GREEN));
+            return;
+        }
+        if (!sender.hasPermission("lifesteal.hearts")) {
+            sender.sendMessage(Component.text("No permission.").color(NamedTextColor.RED));
+            return;
+        }
         Player target = ((Plugin) plugin).getServer().getPlayer(args[0]);
         if (target == null) { sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED)); return; }
         sender.sendMessage(Component.text(target.getName() + " has " + plugin.getHeartManager().getHearts(target) + " hearts.").color(NamedTextColor.GREEN));
@@ -407,7 +432,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
         
         if (name.equals("hearts") || name.equals("lifesteal") || name.equals("ls")) {
             if (args.length == 1) {
-                return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "withdraw", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
+                return List.of("help", "reload", "hearts", "sethearts", "giveheart", "giverevival", "revive", "archetype", "withdraw", "checkhearts", "leaderboard", "version", "trust", "untrust", "trusts", "graceperiod", "gp");
             }
             if (args.length == 2) {
                 switch (args[0].toLowerCase()) {
@@ -419,6 +444,7 @@ public class LifestealCommand implements CommandExecutor, TabCompleter {
                     case "giveheart":
                     case "giverevival":
                     case "revive":
+                    case "checkhearts":
                         return getOnlinePlayers();
                     case "graceperiod":
                     case "gp":

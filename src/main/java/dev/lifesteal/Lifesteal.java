@@ -127,6 +127,11 @@ public class Lifesteal extends JavaPlugin implements dev.lifesteal.api.Lifesteal
             cmd.setExecutor(new LifestealCommand(this));
             cmd.setTabCompleter(new LifestealCommand(this));
         }
+        cmd = getCommand("checkhearts");
+        if (cmd != null) {
+            cmd.setExecutor(new LifestealCommand(this));
+            cmd.setTabCompleter(new LifestealCommand(this));
+        }
     }
     
     @Override
