@@ -21,11 +21,13 @@ public class EventManager {
     private BukkitTask broadcastTask;
     private BukkitTask endTask;
     private BukkitTask effectTask;
+    private BukkitTask targetRotationTask;
     private UUID currentTarget;
     private long startTime;
-    private static final int DURATION_SECONDS = 300;
+    private static final int DURATION_SECONDS = 1800;
     private static final int BROADCAST_INTERVAL_TICKS = 400;
     private static final int EFFECT_INTERVAL_TICKS = 100;
+    private static final int TARGET_ROTATION_INTERVAL_TICKS = 6000;
 
     public EventManager(@NotNull Lifesteal plugin) {
         this.plugin = plugin;
@@ -48,10 +50,11 @@ public class EventManager {
             return;
         }
         currentTarget = online.get(new Random().nextInt(online.size())).getUniqueId();
-        plugin.getServer().broadcast(Component.text("[Assassin Chase] The hunt has begun! Locations will leak every 20 seconds. Assassins, track your prey!").color(NamedTextColor.DARK_RED));
+        plugin.getServer().broadcast(Component.text("[Assassin Chase] The hunt has begun! Locations will leak every 20 seconds. Target rotates every 5 minutes. Event lasts 30 minutes!").color(NamedTextColor.DARK_RED));
         plugin.getServer().broadcast(Component.text("[Assassin Chase] First target: " + plugin.getServer().getPlayer(currentTarget).getName()).color(NamedTextColor.GOLD));
         broadcastTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::broadcastTargetLocation, 0L, BROADCAST_INTERVAL_TICKS);
         effectTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::applyAssassinEffects, 0L, EFFECT_INTERVAL_TICKS);
+        targetRotationTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::rotateTarget, 0L, TARGET_ROTATION_INTERVAL_TICKS);
         endTask = plugin.getServer().getScheduler().runTaskLater(plugin, this::endAssassinChase, DURATION_SECONDS * 20L);
     }
 
@@ -66,6 +69,7 @@ public class EventManager {
         if (broadcastTask != null) { broadcastTask.cancel(); broadcastTask = null; }
         if (endTask != null) { endTask.cancel(); endTask = null; }
         if (effectTask != null) { effectTask.cancel(); effectTask = null; }
+        if (targetRotationTask != null) { targetRotationTask.cancel(); targetRotationTask = null; }
         String topKiller = null;
         int topKills = 0;
         for (Map.Entry<UUID, Integer> entry : assassinKills.entrySet()) {
@@ -99,6 +103,12 @@ public class EventManager {
         if (online.isEmpty()) return;
         currentTarget = online.get(new Random().nextInt(online.size())).getUniqueId();
         plugin.getServer().broadcast(Component.text("[Assassin Chase] New target: " + plugin.getServer().getPlayer(currentTarget).getName()).color(NamedTextColor.GOLD));
+    }
+
+    private void rotateTarget() {
+        if (!active) return;
+        pickNewTarget();
+        plugin.getServer().broadcast(Component.text("[Assassin Chase] Target rotated! New target: " + plugin.getServer().getPlayer(currentTarget).getName()).color(NamedTextColor.RED));
     }
 
     public void onAssassinKill(@NotNull Player killer, @NotNull Player victim) {
