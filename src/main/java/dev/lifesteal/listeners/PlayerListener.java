@@ -35,6 +35,8 @@ public class PlayerListener implements Listener {
     private final RevivalManager revivalManager;
     private final LifestealConfig config;
     private final java.util.Map<UUID, Long> heartCrystalCooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.Map<UUID, Long> lastDeathTimes = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long DEATH_DEBOUNCE_MILLIS = 5000L;
     
     public PlayerListener(@NotNull Lifesteal plugin, @NotNull HeartManager heartManager,
                           @NotNull dev.lifesteal.api.ArchetypeManager archetypeManager,
@@ -85,6 +87,15 @@ public class PlayerListener implements Listener {
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
         if (!config.isWorldEnabled(victim.getWorld().getName())) return;
+        
+        UUID victimId = victim.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long lastDeath = lastDeathTimes.get(victimId);
+        if (lastDeath != null && now - lastDeath < DEATH_DEBOUNCE_MILLIS) {
+            plugin.getLogger().warning("[DeathDebounce] Ignored duplicate death event for " + victim.getName() + " within " + DEATH_DEBOUNCE_MILLIS + "ms");
+            return;
+        }
+        lastDeathTimes.put(victimId, now);
         
         Player killer = victim.getKiller();
         if (killer != null) {
