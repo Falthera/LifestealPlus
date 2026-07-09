@@ -172,8 +172,16 @@ public class PlayerListener implements Listener {
             if (meta != null) {
                 for (var entry : item.getEnchantments().entrySet()) {
                     org.bukkit.enchantments.Enchantment existing = entry.getKey();
-                    if (existing.equals(enchant) || existing.conflictsWith(enchant)) continue;
-                    meta.addEnchant(existing, entry.getValue(), true);
+                    int existingLevel = entry.getValue();
+                    if (existing.conflictsWith(enchant)) continue;
+                    if (existing.equals(enchant)) {
+                        if (existingLevel >= level) {
+                            player.sendMessage(net.kyori.adventure.text.Component.text("Item already has this enchant.").color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+                            return false;
+                        }
+                        continue;
+                    }
+                    meta.addEnchant(existing, existingLevel, true);
                 }
                 copy.setItemMeta(meta);
             }
